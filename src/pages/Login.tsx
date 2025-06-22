@@ -19,7 +19,7 @@ const Login = () => {
     setError(null);
 
     // Check credentials (hardcoded as requested)
-    if (email === "olivierrahajaniaina9@gmail.com" && password === "Olivier") {
+    if (email === "olivierrahajaniaina9@gmail.com" && password === "Rakotosia11") {
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur la plateforme de gestion",
@@ -33,7 +33,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Banner MTFoP */}
       <div className="w-full bg-gradient-to-r from-red-600 via-white to-green-600 p-3 shadow-lg animate-fade-in">
         <div className="container mx-auto flex justify-between items-center">
@@ -58,14 +58,14 @@ const Login = () => {
           <Button 
             variant="ghost" 
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 hover-scale transition-all duration-300 animate-slide-in-right"
+            className="flex items-center gap-2 hover-scale transition-all duration-300 animate-slide-in-right dark:text-white dark:hover:bg-slate-700"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
             Retour à l'accueil
           </Button>
         </div>
         
-        <Card className="w-full max-w-md mx-4 shadow-2xl border-t-4 border-t-blue-800 animate-scale-in">
+        <Card className="w-full max-w-md mx-4 shadow-2xl border-t-4 border-t-blue-800 animate-scale-in dark:bg-slate-800 dark:border-slate-700">
           <CardHeader className="space-y-1 flex items-center flex-col">
             <div className="flex justify-center mb-4 animate-fade-in">
               <img 
@@ -74,15 +74,15 @@ const Login = () => {
                 className="h-16 w-auto hover-scale transition-transform duration-300"
               />
             </div>
-            <CardTitle className="text-2xl font-bold text-center animate-fade-in">Connexion</CardTitle>
-            <CardDescription className="text-center animate-fade-in" style={{animationDelay: '0.2s'}}>
+            <CardTitle className="text-2xl font-bold text-center animate-fade-in dark:text-white">Connexion</CardTitle>
+            <CardDescription className="text-center animate-fade-in dark:text-gray-300" style={{animationDelay: '0.2s'}}>
               Entrez vos identifiants pour accéder à la plateforme
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4 animate-fade-in" style={{animationDelay: '0.4s'}}>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="dark:text-white">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -90,13 +90,13 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="transition-all duration-300 focus:scale-105"
+                  className="transition-all duration-300 focus:scale-105 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                  <Label htmlFor="password" className="dark:text-white">Mot de passe</Label>
+                  <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
                     Mot de passe oublié?
                   </a>
                 </div>
@@ -107,11 +107,11 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="transition-all duration-300 focus:scale-105"
+                  className="transition-all duration-300 focus:scale-105 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
               {error && (
-                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-md text-sm animate-fade-in">
+                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-md text-sm animate-fade-in dark:bg-red-900/20 dark:text-red-400">
                   {error}
                 </div>
               )}

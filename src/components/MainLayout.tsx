@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
+import { useSettings } from "@/contexts/SettingsContext";
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -21,6 +22,7 @@ const MainLayout = ({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { darkMode } = useSettings();
   
   const handleLogout = () => {
     toast({
@@ -31,7 +33,7 @@ const MainLayout = ({
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className={`flex h-screen ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
       {/* Sidebar */}
       <Sidebar 
         sidebarOpen={sidebarOpen}
@@ -43,7 +45,7 @@ const MainLayout = ({
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header title={title} username={username} />
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
+        <main className={`flex-1 overflow-y-auto p-6 ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
           {children}
         </main>
       </div>

@@ -4,34 +4,16 @@ import { useToast } from "@/hooks/use-toast";
 import { EvaluationType } from "@/types/evaluations";
 import { generateEvaluationPDF } from "@/utils/evaluationPdfGenerator";
 
-// Sample data for evaluations
+// Sample data for evaluations without default values
 const initialEvaluations = [
   {
     id: 1,
-    firstName: "Jean",
-    lastName: "Rakoto",
-    startDate: "2025-03-01",
-    endDate: "2025-06-01",
-    grade: 16,
-    comment: "Très bon stagiaire, autonome et créatif."
-  },
-  {
-    id: 2,
-    firstName: "Marie",
-    lastName: "Razafy",
-    startDate: "2025-02-15",
-    endDate: "2025-05-15",
-    grade: 14,
-    comment: "Bon travail, mais peut améliorer sa communication."
-  },
-  {
-    id: 3,
-    firstName: "Hery",
-    lastName: "Randriamaro",
-    startDate: "2025-01-10",
-    endDate: "2025-04-10",
-    grade: 18,
-    comment: "Excellent stagiaire, compétences techniques remarquables."
+    firstName: "",
+    lastName: "",
+    startDate: "",
+    endDate: "",
+    grade: 0,
+    comment: ""
   }
 ];
 
@@ -80,7 +62,7 @@ export const useEvaluations = () => {
         generateEvaluationPDF(evaluation);
         toast({
           title: "Certificat généré avec succès",
-          description: `Le certificat de stage pour ${evaluation.firstName} ${evaluation.lastName} a été téléchargé avec le logo officiel.`,
+          description: `Le certificat de stage pour ${evaluation.firstName} ${evaluation.lastName} a été téléchargé avec les logos officiels.`,
         });
       } catch (error) {
         toast({

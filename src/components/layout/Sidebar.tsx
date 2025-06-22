@@ -13,7 +13,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: SidebarProps) => {
   const navigate = useNavigate();
-  const { translations } = useSettings();
+  const { translations, darkMode } = useSettings();
 
   const menuItems = [
     { id: "profile", label: translations["Mon profil"], icon: "👤", path: "/profile" },
@@ -26,9 +26,9 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
   ];
 
   return (
-    <div className={`bg-white shadow-lg transition-all duration-300 animate-slide-in-right ${sidebarOpen ? 'w-64' : 'w-16'} flex flex-col`}>
+    <div className={`${darkMode ? 'bg-slate-800' : 'bg-white'} shadow-lg transition-all duration-300 animate-slide-in-right ${sidebarOpen ? 'w-64' : 'w-16'} flex flex-col`}>
       {/* Header */}
-      <div className="p-4 border-b flex items-center justify-between">
+      <div className={`p-4 ${darkMode ? 'border-slate-700' : 'border-gray-200'} border-b flex items-center justify-between`}>
         {sidebarOpen && (
           <div className="flex items-center space-x-2 animate-fade-in">
             <img 
@@ -36,13 +36,13 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
               alt="MTFoP Logo" 
               className="h-8 w-auto"
             />
-            <span className="font-bold text-blue-800">MTFoP</span>
+            <span className={`font-bold ${darkMode ? 'text-white' : 'text-blue-800'}`}>MTFoP</span>
           </div>
         )}
         <Button
           variant="ghost"
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 hover-scale transition-all duration-300"
+          className={`p-2 hover-scale transition-all duration-300 ${darkMode ? 'text-white hover:bg-slate-700' : 'hover:bg-gray-100'}`}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 12h18m-9-9l9 9-9 9"/>
@@ -58,7 +58,11 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
               <Button
                 variant={currentPage === item.id ? "default" : "ghost"}
                 className={`w-full justify-start transition-all duration-300 hover-scale ${
-                  currentPage === item.id ? "bg-blue-800 text-white" : "hover:bg-blue-50"
+                  currentPage === item.id 
+                    ? "bg-blue-800 text-white" 
+                    : darkMode 
+                      ? "text-white hover:bg-slate-700" 
+                      : "hover:bg-blue-50"
                 }`}
                 onClick={() => navigate(item.path)}
               >
@@ -71,11 +75,13 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t">
+      <div className={`p-4 ${darkMode ? 'border-slate-700' : 'border-gray-200'} border-t`}>
         <Button
           variant="ghost"
           onClick={onLogout}
-          className="w-full justify-start text-red-600 hover:bg-red-50 hover-scale transition-all duration-300"
+          className={`w-full justify-start text-red-600 hover-scale transition-all duration-300 ${
+            darkMode ? 'hover:bg-red-900/20' : 'hover:bg-red-50'
+          }`}
         >
           <span className="text-lg">🚪</span>
           {sidebarOpen && <span className="ml-3 animate-fade-in">{translations["Déconnexion"]}</span>}
