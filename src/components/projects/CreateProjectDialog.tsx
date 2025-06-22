@@ -4,8 +4,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useInterns } from "@/hooks/useInterns";
+import { X } from "lucide-react";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -21,10 +24,11 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   const [formData, setFormData] = useState({
     title: "",
     startDate: "",
-    endDate: "",
-    description: ""
+    endDate: ""
   });
+  const [selectedInterns, setSelectedInterns] = useState<any[]>([]);
   const { toast } = useToast();
+  const { interns } = useInterns();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,8 +47,12 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
       title: formData.title,
       startDate: formData.startDate,
       endDate: formData.endDate,
-      description: formData.description,
-      interns: [],
+      interns: selectedInterns.map(intern => ({
+        id: intern.id,
+        name: `${intern.firstName} ${intern.lastName}`,
+        status: "en cours",
+        completion: 0
+      })),
       tasks: []
     };
 
@@ -55,13 +63,29 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
       description: "Le nouveau projet a été créé avec succès"
     });
 
-    setFormData({ title: "", startDate: "", endDate: "", description: "" });
+    setFormData({ title: "", startDate: "", endDate: "" });
+    setSelectedInterns([]);
     onOpenChange(false);
   };
 
+  const handleAddIntern = (internId: string) => {
+    const intern = interns.find(i => i.id.toString() === internId);
+    if (intern && !selectedInterns.find(i => i.id === intern.id)) {
+      setSelectedInterns([...selectedInterns, intern]);
+    }
+  };
+
+  const handleRemoveIntern = (internId: number) => {
+    setSelectedInterns(selectedInterns.filter(i => i.id !== internId));
+  };
+
+  const availableInterns = interns.filter(intern => 
+    !selectedInterns.find(selected => selected.id === intern.id)
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] animate-scale-in">
+      <DialogContent className="sm:max-w-[500px] animate-scale-in">
         <DialogHeader>
           <DialogTitle>Nouveau projet</DialogTitle>
           <DialogDescription>
@@ -109,17 +133,38 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Stagiaires
               </Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="col-span-3"
-                placeholder="Description du projet"
-              />
+              <div className="col-span-3 space-y-3">
+                <Select onValueChange={handleAddIntern}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Ajouter un stagiaire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableInterns.map(intern => (
+                      <SelectItem key={intern.id} value={intern.id.toString()}>
+                        {intern.firstName} {intern.lastName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {selectedInterns.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedInterns.map(intern => (
+                      <Badge key={intern.id} variant="secondary" className="flex items-center gap-1">
+                        {intern.firstName} {intern.lastName}
+                        <X 
+                          className="h-3 w-3 cursor-pointer" 
+                          onClick={() => handleRemoveIntern(intern.id)}
+                        />
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <DialogFooter>

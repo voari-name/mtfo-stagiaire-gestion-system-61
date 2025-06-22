@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -19,14 +19,14 @@ const Login = () => {
     setError(null);
 
     // Check credentials (hardcoded as requested)
-    if (username === "RAHAJANIAINA" && password === "Olivier") {
+    if (email === "olivierrahajaniaina9@gmail.com" && password === "Olivier") {
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur la plateforme de gestion",
       });
       navigate("/profile"); // Redirection vers la page Profil
-    } else if (username !== "RAHAJANIAINA") {
-      setError("Nom d'utilisateur incorrect");
+    } else if (email !== "olivierrahajaniaina9@gmail.com") {
+      setError("Email incorrect");
     } else {
       setError("Mot de passe incorrect");
     }
@@ -82,12 +82,13 @@ const Login = () => {
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4 animate-fade-in" style={{animationDelay: '0.4s'}}>
               <div className="space-y-2">
-                <Label htmlFor="username">Nom d'utilisateur</Label>
+                <Label htmlFor="email">Email</Label>
                 <Input
-                  id="username"
-                  placeholder="Entrez votre nom d'utilisateur"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  id="email"
+                  type="email"
+                  placeholder="Entrez votre email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="transition-all duration-300 focus:scale-105"
                 />

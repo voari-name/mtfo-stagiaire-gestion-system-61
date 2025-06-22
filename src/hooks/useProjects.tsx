@@ -96,6 +96,16 @@ export const useProjects = () => {
     setProjects(prev => [...prev, newProject]);
   };
 
+  const deleteProject = (id: number) => {
+    setProjects(prev => prev.filter(project => project.id !== id));
+  };
+
+  const editProject = (project: Project) => {
+    // Pour l'instant, on ouvre juste les détails
+    // Plus tard, on peut ajouter un dialog d'édition
+    handleViewDetails(project);
+  };
+
   const getStatusColor = (status: TaskStatus) => {
     switch (status) {
       case "completed": return "bg-green-500";
@@ -112,6 +122,8 @@ export const useProjects = () => {
     setIsDetailsOpen,
     handleViewDetails,
     addProject,
+    deleteProject,
+    editProject,
     calculateProgress,
     getStatusColor,
     availableInterns: getAvailableInterns()

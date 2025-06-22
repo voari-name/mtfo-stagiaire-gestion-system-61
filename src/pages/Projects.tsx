@@ -17,7 +17,9 @@ const Projects = () => {
     handleViewDetails,
     addProject,
     calculateProgress,
-    getStatusColor
+    getStatusColor,
+    deleteProject,
+    editProject
   } = useProjects();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -47,6 +49,8 @@ const Projects = () => {
               projects={projects} 
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
+              onDeleteProject={deleteProject}
+              onEditProject={editProject}
             />
           </TabsContent>
           
@@ -55,6 +59,8 @@ const Projects = () => {
               projects={projects.filter(p => p.interns.some(i => i.status === "en cours"))} 
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
+              onDeleteProject={deleteProject}
+              onEditProject={editProject}
             />
           </TabsContent>
           
@@ -63,6 +69,8 @@ const Projects = () => {
               projects={projects.filter(p => p.interns.every(i => i.status === "fin"))} 
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
+              onDeleteProject={deleteProject}
+              onEditProject={editProject}
             />
           </TabsContent>
         </Tabs>

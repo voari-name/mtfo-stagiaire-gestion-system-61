@@ -9,12 +9,10 @@ type Translations = {
 
 interface SettingsContextType {
   darkMode: boolean;
-  standbyMode: boolean;
   brightness: number[];
   language: Language;
   translations: Translations;
   setDarkMode: (value: boolean) => void;
-  setStandbyMode: (value: boolean) => void;
   setBrightness: (value: number[]) => void;
   setLanguage: (value: Language) => void;
 }
@@ -35,7 +33,6 @@ const translationsMap: Record<Language, Translations> = {
     "Informations personnelles": "Informations personnelles",
     "Préférences d'affichage": "Préférences d'affichage",
     "Mode sombre": "Mode sombre",
-    "Mode veille": "Mode veille",
     "Luminosité": "Luminosité",
     "Langue de l'application": "Langue de l'application",
     "Gestion des affectations": "Gestion des affectations",
@@ -54,7 +51,6 @@ const translationsMap: Record<Language, Translations> = {
     "Informations personnelles": "Personal Information",
     "Préférences d'affichage": "Display Preferences",
     "Mode sombre": "Dark Mode",
-    "Mode veille": "Standby Mode",
     "Luminosité": "Brightness",
     "Langue de l'application": "Application Language",
     "Gestion des affectations": "Assignment Management",
@@ -73,7 +69,6 @@ const translationsMap: Record<Language, Translations> = {
     "Informations personnelles": "Fampahalalana manokana",
     "Préférences d'affichage": "Safidy fisehoana",
     "Mode sombre": "Fomba maizina",
-    "Mode veille": "Fomba fiandrasana",
     "Luminosité": "Hazavana",
     "Langue de l'application": "Fitenin'ny rindrambaiko",
     "Gestion des affectations": "Fitantanana ny fanendrena",
@@ -83,7 +78,6 @@ const translationsMap: Record<Language, Translations> = {
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [darkMode, setDarkMode] = useState(false);
-  const [standbyMode, setStandbyMode] = useState(false);
   const [brightness, setBrightness] = useState([80]);
   const [language, setLanguage] = useState<Language>('fr');
 
@@ -91,19 +85,19 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     darkMode,
-    standbyMode,
     brightness,
     language,
     translations,
     setDarkMode,
-    setStandbyMode,
     setBrightness,
     setLanguage,
   };
 
   return (
     <SettingsContext.Provider value={value}>
-      {children}
+      <div className={darkMode ? 'dark bg-slate-900 text-white min-h-screen' : ''}>
+        {children}
+      </div>
     </SettingsContext.Provider>
   );
 };
