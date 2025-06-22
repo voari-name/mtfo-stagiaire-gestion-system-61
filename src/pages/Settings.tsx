@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,11 +14,9 @@ const Settings = () => {
   const { toast } = useToast();
   const { 
     darkMode, 
-    standbyMode, 
     brightness, 
     language, 
     setDarkMode, 
-    setStandbyMode, 
     setBrightness, 
     setLanguage,
     translations 
@@ -70,14 +69,6 @@ const Settings = () => {
                     id="mode" 
                     checked={darkMode}
                     onCheckedChange={setDarkMode}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="standby">{translations["Mode veille"]}</Label>
-                  <Switch 
-                    id="standby" 
-                    checked={standbyMode}
-                    onCheckedChange={setStandbyMode}
                   />
                 </div>
               </div>

@@ -13,11 +13,9 @@ import PersonalInfoForm from "@/components/profile/PersonalInfoForm";
 const Profile = () => {
   const { 
     darkMode, 
-    standbyMode, 
     brightness, 
     language, 
     setDarkMode, 
-    setStandbyMode, 
     setBrightness, 
     setLanguage,
     translations 
@@ -77,14 +75,6 @@ const Profile = () => {
                     id="darkMode" 
                     checked={darkMode}
                     onCheckedChange={setDarkMode}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="standbyMode">{translations["Mode veille"]}</Label>
-                  <Switch 
-                    id="standbyMode" 
-                    checked={standbyMode}
-                    onCheckedChange={setStandbyMode}
                   />
                 </div>
               </div>
