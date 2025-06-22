@@ -18,8 +18,10 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
   const menuItems = [
     { id: "profile", label: translations["Mon profil"], icon: "👤", path: "/profile" },
     { id: "internships", label: translations["Gestion des stages"], icon: "👥", path: "/internships" },
-    { id: "evaluations", label: translations["Évaluations"], icon: "📊", path: "/evaluations" },
     { id: "projects", label: translations["Projets"], icon: "📋", path: "/projects" },
+    { id: "evaluations", label: translations["Évaluations"], icon: "📊", path: "/evaluations" },
+    { id: "assignments", label: translations["Affectations"], icon: "📌", path: "/assignments" },
+    { id: "statistics", label: translations["Statistiques"], icon: "📈", path: "/statistics" },
     { id: "settings", label: translations["Paramètres"], icon: "⚙️", path: "/settings" },
   ];
 

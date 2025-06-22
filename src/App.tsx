@@ -10,6 +10,8 @@ import Evaluations from "./pages/Evaluations";
 import Projects from "./pages/Projects";
 import Settings from "./pages/Settings";
 import Dashboard from "./pages/Dashboard";
+import Assignments from "./pages/Assignments";
+import Statistics from "./pages/Statistics";
 import NotFound from "./pages/NotFound";
 import { SettingsProvider } from "./contexts/SettingsContext";
 
@@ -26,8 +28,10 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/internships" element={<Internships />} />
-              <Route path="/evaluations" element={<Evaluations />} />
               <Route path="/projects" element={<Projects />} />
+              <Route path="/evaluations" element={<Evaluations />} />
+              <Route path="/assignments" element={<Assignments />} />
+              <Route path="/statistics" element={<Statistics />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="*" element={<NotFound />} />

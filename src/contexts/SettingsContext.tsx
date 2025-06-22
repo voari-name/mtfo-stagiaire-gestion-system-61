@@ -1,177 +1,108 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export interface SettingsContextType {
+type Language = 'fr' | 'en' | 'mg';
+
+type Translations = {
+  [key: string]: string;
+};
+
+interface SettingsContextType {
   darkMode: boolean;
   standbyMode: boolean;
   brightness: number[];
-  language: string;
+  language: Language;
+  translations: Translations;
   setDarkMode: (value: boolean) => void;
   setStandbyMode: (value: boolean) => void;
   setBrightness: (value: number[]) => void;
-  setLanguage: (value: string) => void;
-  translations: { [key: string]: string };
+  setLanguage: (value: Language) => void;
 }
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
 
-const translations = {
+const translationsMap: Record<Language, Translations> = {
   fr: {
-    'Mon profil': 'Mon profil',
-    'Gestion des stages': 'Gestion des stages',
-    'Évaluations': 'Évaluations',
-    'Projets': 'Projets',
-    'Paramètres': 'Paramètres',
-    'Déconnexion': 'Déconnexion',
-    'Photo de profil': 'Photo de profil',
-    'Informations personnelles': 'Informations personnelles',
-    'Préférences d\'affichage': 'Préférences d\'affichage',
-    'Mode sombre': 'Mode sombre',
-    'Mode veille': 'Mode veille',
-    'Luminosité': 'Luminosité',
-    'Langue de l\'application': 'Langue de l\'application',
-    'Tableau de bord': 'Tableau de bord',
-    'Rechercher': 'Rechercher',
-    'Ajouter un stagiaire': 'Ajouter un stagiaire',
-    'Statut': 'Statut',
-    'Actions': 'Actions',
-    'Modifier': 'Modifier',
-    'Supprimer': 'Supprimer',
-    'Télécharger PDF': 'Télécharger PDF'
+    "Mon profil": "Mon profil",
+    "Gestion des stages": "Gestion des stages",
+    "Projets": "Projets",
+    "Évaluations": "Évaluations",
+    "Affectations": "Affectations",
+    "Statistiques": "Statistiques",
+    "Paramètres": "Paramètres",
+    "Déconnexion": "Déconnexion",
+    "Photo de profil": "Photo de profil",
+    "Informations personnelles": "Informations personnelles",
+    "Préférences d'affichage": "Préférences d'affichage",
+    "Mode sombre": "Mode sombre",
+    "Mode veille": "Mode veille",
+    "Luminosité": "Luminosité",
+    "Langue de l'application": "Langue de l'application",
+    "Gestion des affectations": "Gestion des affectations",
+    "Tableau de bord statistiques": "Tableau de bord statistiques"
   },
   en: {
-    'Mon profil': 'My Profile',
-    'Gestion des stages': 'Internship Management',
-    'Évaluations': 'Evaluations',
-    'Projets': 'Projects',
-    'Paramètres': 'Settings',
-    'Déconnexion': 'Logout',
-    'Photo de profil': 'Profile Photo',
-    'Informations personnelles': 'Personal Information',
-    'Préférences d\'affichage': 'Display Preferences',
-    'Mode sombre': 'Dark Mode',
-    'Mode veille': 'Standby Mode',
-    'Luminosité': 'Brightness',
-    'Langue de l\'application': 'Application Language',
-    'Tableau de bord': 'Dashboard',
-    'Rechercher': 'Search',
-    'Ajouter un stagiaire': 'Add Intern',
-    'Statut': 'Status',
-    'Actions': 'Actions',
-    'Modifier': 'Edit',
-    'Supprimer': 'Delete',
-    'Télécharger PDF': 'Download PDF'
+    "Mon profil": "My Profile",
+    "Gestion des stages": "Internship Management",
+    "Projets": "Projects",
+    "Évaluations": "Evaluations",
+    "Affectations": "Assignments",
+    "Statistiques": "Statistics",
+    "Paramètres": "Settings",
+    "Déconnexion": "Logout",
+    "Photo de profil": "Profile Photo",
+    "Informations personnelles": "Personal Information",
+    "Préférences d'affichage": "Display Preferences",
+    "Mode sombre": "Dark Mode",
+    "Mode veille": "Standby Mode",
+    "Luminosité": "Brightness",
+    "Langue de l'application": "Application Language",
+    "Gestion des affectations": "Assignment Management",
+    "Tableau de bord statistiques": "Statistics Dashboard"
   },
   mg: {
-    'Mon profil': 'Ny mombamomba ahy',
-    'Gestion des stages': 'Fitantanana ny fampianarana',
-    'Évaluations': 'Fanombanana',
-    'Projets': 'Tetikasa',
-    'Paramètres': 'Parametatra',
-    'Déconnexion': 'Hivoaka',
-    'Photo de profil': 'Sarin\'ny mombamomba',
-    'Informations personnelles': 'Fampahalalana manokana',
-    'Préférences d\'affichage': 'Safidy fampisehoana',
-    'Mode sombre': 'Maizina',
-    'Mode veille': 'Fiandrasana',
-    'Luminosité': 'Fahazavana',
-    'Langue de l\'application': 'Fitenin\'ny rindranasa',
-    'Tableau de bord': 'Sehatr\'asa',
-    'Rechercher': 'Tadiavo',
-    'Ajouter un stagiaire': 'Manampy mpianatra',
-    'Statut': 'Toe-javatra',
-    'Actions': 'Asa',
-    'Modifier': 'Ovay',
-    'Supprimer': 'Fafao',
-    'Télécharger PDF': 'Alao PDF'
+    "Mon profil": "Ny mombamomba ahy",
+    "Gestion des stages": "Fitantanana ny fampiharana",
+    "Projets": "Tetikasa",
+    "Évaluations": "Fanombanana",
+    "Affectations": "Fanendrena",
+    "Statistiques": "Antontan'isa",
+    "Paramètres": "Fandrindrana",
+    "Déconnexion": "Fivoahana",
+    "Photo de profil": "Sary mombamomba",
+    "Informations personnelles": "Fampahalalana manokana",
+    "Préférences d'affichage": "Safidy fisehoana",
+    "Mode sombre": "Fomba maizina",
+    "Mode veille": "Fomba fiandrasana",
+    "Luminosité": "Hazavana",
+    "Langue de l'application": "Fitenin'ny rindrambaiko",
+    "Gestion des affectations": "Fitantanana ny fanendrena",
+    "Tableau de bord statistiques": "Sehatry ny antontan'isa"
   }
 };
 
 export const SettingsProvider = ({ children }: { children: ReactNode }) => {
-  const [darkMode, setDarkModeState] = useState(false);
-  const [standbyMode, setStandbyModeState] = useState(false);
-  const [brightness, setBrightnessState] = useState([50]);
-  const [language, setLanguageState] = useState('fr');
+  const [darkMode, setDarkMode] = useState(false);
+  const [standbyMode, setStandbyMode] = useState(false);
+  const [brightness, setBrightness] = useState([80]);
+  const [language, setLanguage] = useState<Language>('fr');
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('appSettings');
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      setDarkModeState(parsed.darkMode || false);
-      setStandbyModeState(parsed.standbyMode || false);
-      setBrightnessState(parsed.brightness || [50]);
-      setLanguageState(parsed.language || 'fr');
-    }
-  }, []);
+  const translations = translationsMap[language];
 
-  // Apply dark mode with blue and yellow theme
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.style.setProperty('--primary', '217 91% 60%'); // Blue
-      document.documentElement.style.setProperty('--secondary', '48 96% 53%'); // Yellow
-      document.documentElement.style.setProperty('--accent', '217 91% 60%'); // Blue accent
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.style.removeProperty('--primary');
-      document.documentElement.style.removeProperty('--secondary');
-      document.documentElement.style.removeProperty('--accent');
-    }
-  }, [darkMode]);
-
-  // Apply brightness
-  useEffect(() => {
-    document.documentElement.style.filter = `brightness(${brightness[0]}%)`;
-  }, [brightness]);
-
-  // Apply standby mode (reduce brightness when active)
-  useEffect(() => {
-    if (standbyMode) {
-      document.documentElement.style.opacity = '0.7';
-    } else {
-      document.documentElement.style.opacity = '1';
-    }
-  }, [standbyMode]);
-
-  const setDarkMode = (value: boolean) => {
-    setDarkModeState(value);
-    saveSettings({ darkMode: value, standbyMode, brightness, language });
+  const value = {
+    darkMode,
+    standbyMode,
+    brightness,
+    language,
+    translations,
+    setDarkMode,
+    setStandbyMode,
+    setBrightness,
+    setLanguage,
   };
-
-  const setStandbyMode = (value: boolean) => {
-    setStandbyModeState(value);
-    saveSettings({ darkMode, standbyMode: value, brightness, language });
-  };
-
-  const setBrightness = (value: number[]) => {
-    setBrightnessState(value);
-    saveSettings({ darkMode, standbyMode, brightness: value, language });
-  };
-
-  const setLanguage = (value: string) => {
-    setLanguageState(value);
-    saveSettings({ darkMode, standbyMode, brightness, language: value });
-  };
-
-  const saveSettings = (settings: any) => {
-    localStorage.setItem('appSettings', JSON.stringify(settings));
-  };
-
-  const currentTranslations = translations[language as keyof typeof translations] || translations.fr;
 
   return (
-    <SettingsContext.Provider value={{
-      darkMode,
-      standbyMode,
-      brightness,
-      language,
-      setDarkMode,
-      setStandbyMode,
-      setBrightness,
-      setLanguage,
-      translations: currentTranslations
-    }}>
+    <SettingsContext.Provider value={value}>
       {children}
     </SettingsContext.Provider>
   );
