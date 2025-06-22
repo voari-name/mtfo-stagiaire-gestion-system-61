@@ -117,7 +117,7 @@ const Login = () => {
             </CardContent>
             <CardFooter className="flex flex-col animate-fade-in" style={{animationDelay: '0.6s'}}>
               <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900 hover-scale transition-all duration-300">
-                Se connecter - Login
+                Se connecter
               </Button>
             </CardFooter>
           </form>

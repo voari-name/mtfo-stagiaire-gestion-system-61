@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,53 +12,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PhotoUpload } from "@/components/ui/photo-upload";
 import { Edit, Trash2 } from "lucide-react";
 
-// Updated interface to include photo and gender
+// Updated interface without title and status
 interface Intern {
   id: number;
   firstName: string;
   lastName: string;
-  title: string;
   email: string;
-  startDate: string;
-  endDate: string;
-  status: string;
   photo?: string;
   gender: string;
 }
 
-// Sample data
+// Sample data without title and status
 const initialInterns: Intern[] = [
   { 
     id: 1, 
     firstName: "Jean", 
     lastName: "Rakoto", 
-    title: "Développement Web", 
     email: "jean.rakoto@example.com",
-    startDate: "2025-03-01",
-    endDate: "2025-06-01",
-    status: "en cours",
     gender: "masculin"
   },
   { 
     id: 2, 
     firstName: "Marie", 
     lastName: "Razafy", 
-    title: "Gestion de Projet", 
     email: "marie.razafy@example.com",
-    startDate: "2025-02-15",
-    endDate: "2025-05-15",
-    status: "en cours",
     gender: "féminin"
   },
   { 
     id: 3, 
     firstName: "Hery", 
     lastName: "Randriamaro", 
-    title: "Analyse de données", 
     email: "hery.r@example.com",
-    startDate: "2025-01-10",
-    endDate: "2025-04-10",
-    status: "fin",
     gender: "masculin"
   },
 ];
@@ -68,11 +52,7 @@ const Internships = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    title: "",
     email: "",
-    startDate: "",
-    endDate: "",
-    status: "en cours",
     photo: "",
     gender: ""
   });
@@ -92,30 +72,44 @@ const Internships = () => {
     setFormData({ ...formData, photo: photo || "" });
   };
 
-  const handleAddIntern = () => {
+  const resetForm = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      photo: "",
+      gender: ""
+    });
+  };
+
+  const handleSave = () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.gender) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs obligatoires.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newIntern: Intern = {
       id: interns.length + 1,
       ...formData
     };
     
     setInterns([...interns, newIntern]);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      title: "",
-      email: "",
-      startDate: "",
-      endDate: "",
-      status: "en cours",
-      photo: "",
-      gender: ""
-    });
-    
+    resetForm();
     setIsDialogOpen(false);
+    
     toast({
       title: "Stagiaire ajouté",
       description: `${formData.firstName} ${formData.lastName} a été ajouté avec succès.`,
     });
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setIsDialogOpen(false);
   };
 
   const handleDeleteIntern = (id: number) => {
@@ -146,30 +140,6 @@ const Internships = () => {
                 <p className="text-sm text-muted-foreground capitalize">{intern.gender}</p>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Intitulé du stage</p>
-                <p className="font-medium">{intern.title}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Période</p>
-                <p className="font-medium">
-                  {new Date(intern.startDate).toLocaleDateString('fr-FR')} au {new Date(intern.endDate).toLocaleDateString('fr-FR')}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Statut</p>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium inline-block ${
-                  intern.status === 'en cours' ? 'bg-blue-100 text-blue-800' :
-                  intern.status === 'fin' ? 'bg-green-100 text-green-800' :
-                  'bg-amber-100 text-amber-800'
-                }`}>
-                  {intern.status === 'en cours' ? 'En cours' : 
-                   intern.status === 'fin' ? 'Terminé' : 'À commencer'}
-                </span>
-              </div>
-            </div>
           </div>
           
           <div className="bg-gray-50 p-6 flex flex-col justify-center space-y-3 md:w-48">
@@ -198,41 +168,44 @@ const Internships = () => {
                 Ajouter un stagiaire
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[500px]">
               <DialogHeader>
                 <DialogTitle>Ajouter un nouveau stagiaire</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="flex justify-center mb-4">
-                  <PhotoUpload onPhotoChange={handlePhotoChange} />
+                  <PhotoUpload onPhotoChange={handlePhotoChange} currentPhoto={formData.photo} />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">Prénom</Label>
+                    <Label htmlFor="firstName">Prénom *</Label>
                     <Input 
                       id="firstName" 
                       name="firstName" 
                       value={formData.firstName} 
                       onChange={handleInputChange} 
+                      required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Nom</Label>
+                    <Label htmlFor="lastName">Nom *</Label>
                     <Input 
                       id="lastName" 
                       name="lastName" 
                       value={formData.lastName} 
                       onChange={handleInputChange} 
+                      required
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Sexe</Label>
+                  <Label htmlFor="gender">Sexe *</Label>
                   <Select 
                     value={formData.gender} 
                     onValueChange={(value) => handleSelectChange("gender", value)}
+                    required
                   >
                     <SelectTrigger id="gender">
                       <SelectValue placeholder="Sélectionnez le sexe" />
@@ -245,88 +218,32 @@ const Internships = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="title">Intitulé du stage</Label>
-                  <Input 
-                    id="title" 
-                    name="title" 
-                    value={formData.title} 
-                    onChange={handleInputChange} 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">Email *</Label>
                   <Input 
                     id="email" 
                     name="email" 
                     type="email" 
                     value={formData.email} 
                     onChange={handleInputChange} 
+                    required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Date de début</Label>
-                    <Input 
-                      id="startDate" 
-                      name="startDate" 
-                      type="date" 
-                      value={formData.startDate} 
-                      onChange={handleInputChange} 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">Date de fin</Label>
-                    <Input 
-                      id="endDate" 
-                      name="endDate" 
-                      type="date" 
-                      value={formData.endDate} 
-                      onChange={handleInputChange} 
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Statut</Label>
-                  <Select 
-                    value={formData.status} 
-                    onValueChange={(value) => handleSelectChange("status", value)}
-                  >
-                    <SelectTrigger id="status">
-                      <SelectValue placeholder="Sélectionnez un statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en cours">En cours</SelectItem>
-                      <SelectItem value="fin">Terminé</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
-              <div className="flex justify-end">
-                <Button onClick={handleAddIntern}>Ajouter le stagiaire</Button>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={handleCancel}>
+                  Annuler
+                </Button>
+                <Button onClick={handleSave}>
+                  Enregistrer
+                </Button>
               </div>
             </DialogContent>
           </Dialog>
         </div>
 
-        <Tabs defaultValue="all">
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">Tous</TabsTrigger>
-            <TabsTrigger value="ongoing">En cours</TabsTrigger>
-            <TabsTrigger value="completed">Terminés</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all" className="space-y-6">
-            {interns.map(renderInternCard)}
-          </TabsContent>
-          
-          <TabsContent value="ongoing" className="space-y-6">
-            {interns.filter(intern => intern.status === 'en cours').map(renderInternCard)}
-          </TabsContent>
-          
-          <TabsContent value="completed" className="space-y-6">
-            {interns.filter(intern => intern.status === 'fin').map(renderInternCard)}
-          </TabsContent>
-        </Tabs>
+        <div className="space-y-6">
+          {interns.map(renderInternCard)}
+        </div>
       </div>
     </MainLayout>
   );
