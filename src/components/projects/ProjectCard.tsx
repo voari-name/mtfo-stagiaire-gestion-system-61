@@ -17,13 +17,17 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   progress, 
   onViewDetails 
 }) => {
+  // Check if project has interns
+  const hasInterns = project.interns && project.interns.length > 0;
+  const firstIntern = hasInterns ? project.interns[0] : null;
+
   return (
     <Card key={project.id} className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl">{project.title}</CardTitle>
-          <Badge variant={project.interns[0].status === "fin" ? "outline" : "default"}>
-            {project.interns[0].status === "fin" ? "Terminé" : "En cours"}
+          <Badge variant={firstIntern?.status === "fin" ? "outline" : "default"}>
+            {firstIntern?.status === "fin" ? "Terminé" : "En cours"}
           </Badge>
         </div>
       </CardHeader>
@@ -46,21 +50,25 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           
           <div>
             <p className="text-sm text-muted-foreground mb-2">Stagiaires assignés</p>
-            <div className="space-y-2">
-              {project.interns.map(intern => (
-                <div key={intern.id} className="flex items-center justify-between">
-                  <span className="text-sm">{intern.name}</span>
-                  <Badge variant="outline" className={
-                    intern.status === 'fin' ? 'border-green-500 text-green-700 bg-green-50' : 
-                    intern.status === 'en cours' ? 'border-blue-500 text-blue-700 bg-blue-50' : 
-                    'border-amber-500 text-amber-700 bg-amber-50'
-                  }>
-                    {intern.status === 'fin' ? 'Terminé' : 
-                     intern.status === 'en cours' ? 'En cours' : 'À commencer'}
-                  </Badge>
-                </div>
-              ))}
-            </div>
+            {hasInterns ? (
+              <div className="space-y-2">
+                {project.interns.map(intern => (
+                  <div key={intern.id} className="flex items-center justify-between">
+                    <span className="text-sm">{intern.name}</span>
+                    <Badge variant="outline" className={
+                      intern.status === 'fin' ? 'border-green-500 text-green-700 bg-green-50' : 
+                      intern.status === 'en cours' ? 'border-blue-500 text-blue-700 bg-blue-50' : 
+                      'border-amber-500 text-amber-700 bg-amber-50'
+                    }>
+                      {intern.status === 'fin' ? 'Terminé' : 
+                       intern.status === 'en cours' ? 'En cours' : 'À commencer'}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground italic">Aucun stagiaire assigné</p>
+            )}
           </div>
           
           <Button 
