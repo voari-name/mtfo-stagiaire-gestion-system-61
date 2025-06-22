@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useInterns, Intern } from "./useInterns";
 
 // Types
 export type TaskStatus = "completed" | "in-progress" | "not-started";
@@ -10,7 +11,7 @@ export interface Task {
   status: TaskStatus;
 }
 
-export interface Intern {
+export interface ProjectIntern {
   id: number;
   name: string;
   status: string;
@@ -23,7 +24,7 @@ export interface Project {
   startDate: string;
   endDate: string;
   description?: string;
-  interns: Intern[];
+  interns: ProjectIntern[];
   tasks: Task[];
 }
 
@@ -77,6 +78,7 @@ export const useProjects = () => {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const { getAvailableInterns } = useInterns();
 
   // Function to calculate overall project progress
   const calculateProgress = (tasks: Task[]) => {
@@ -111,6 +113,7 @@ export const useProjects = () => {
     handleViewDetails,
     addProject,
     calculateProgress,
-    getStatusColor
+    getStatusColor,
+    availableInterns: getAvailableInterns()
   };
 };

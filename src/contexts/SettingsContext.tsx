@@ -24,7 +24,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 const translationsMap: Record<Language, Translations> = {
   fr: {
     "Mon profil": "Mon profil",
-    "Gestion des stages": "Gestion des stages",
+    "Stagiaires": "Stagiaires",
     "Projets": "Projets",
     "Évaluations": "Évaluations",
     "Affectations": "Affectations",
@@ -43,7 +43,7 @@ const translationsMap: Record<Language, Translations> = {
   },
   en: {
     "Mon profil": "My Profile",
-    "Gestion des stages": "Internship Management",
+    "Stagiaires": "Interns",
     "Projets": "Projects",
     "Évaluations": "Evaluations",
     "Affectations": "Assignments",
@@ -62,7 +62,7 @@ const translationsMap: Record<Language, Translations> = {
   },
   mg: {
     "Mon profil": "Ny mombamomba ahy",
-    "Gestion des stages": "Fitantanana ny fampiharana",
+    "Stagiaires": "Mpianatra",
     "Projets": "Tetikasa",
     "Évaluations": "Fanombanana",
     "Affectations": "Fanendrena",

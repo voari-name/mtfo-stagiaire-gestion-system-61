@@ -17,7 +17,7 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
 
   const menuItems = [
     { id: "profile", label: translations["Mon profil"], icon: "👤", path: "/profile" },
-    { id: "internships", label: translations["Gestion des stages"], icon: "👥", path: "/internships" },
+    { id: "internships", label: translations["Stagiaires"], icon: "👥", path: "/internships" },
     { id: "projects", label: translations["Projets"], icon: "📋", path: "/projects" },
     { id: "evaluations", label: translations["Évaluations"], icon: "📊", path: "/evaluations" },
     { id: "assignments", label: translations["Affectations"], icon: "📌", path: "/assignments" },

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,10 +9,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { generateInternPDF } from "@/utils/pdfGenerator";
+import { PhotoUpload } from "@/components/ui/photo-upload";
+import { Edit, Trash2 } from "lucide-react";
 
-// Sample data for the internship management
-const initialInterns = [
+// Updated interface to include photo and gender
+interface Intern {
+  id: number;
+  firstName: string;
+  lastName: string;
+  title: string;
+  email: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  photo?: string;
+  gender: string;
+}
+
+// Sample data
+const initialInterns: Intern[] = [
   { 
     id: 1, 
     firstName: "Jean", 
@@ -20,7 +36,8 @@ const initialInterns = [
     email: "jean.rakoto@example.com",
     startDate: "2025-03-01",
     endDate: "2025-06-01",
-    status: "en cours"
+    status: "en cours",
+    gender: "masculin"
   },
   { 
     id: 2, 
@@ -30,7 +47,8 @@ const initialInterns = [
     email: "marie.razafy@example.com",
     startDate: "2025-02-15",
     endDate: "2025-05-15",
-    status: "en cours"
+    status: "en cours",
+    gender: "féminin"
   },
   { 
     id: 3, 
@@ -40,12 +58,13 @@ const initialInterns = [
     email: "hery.r@example.com",
     startDate: "2025-01-10",
     endDate: "2025-04-10",
-    status: "fin"
+    status: "fin",
+    gender: "masculin"
   },
 ];
 
 const Internships = () => {
-  const [interns, setInterns] = useState(initialInterns);
+  const [interns, setInterns] = useState<Intern[]>(initialInterns);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -53,7 +72,9 @@ const Internships = () => {
     email: "",
     startDate: "",
     endDate: "",
-    status: "début"
+    status: "en cours",
+    photo: "",
+    gender: ""
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -67,8 +88,12 @@ const Internships = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handlePhotoChange = (photo: string | null) => {
+    setFormData({ ...formData, photo: photo || "" });
+  };
+
   const handleAddIntern = () => {
-    const newIntern = {
+    const newIntern: Intern = {
       id: interns.length + 1,
       ...formData
     };
@@ -81,7 +106,9 @@ const Internships = () => {
       email: "",
       startDate: "",
       endDate: "",
-      status: "début"
+      status: "en cours",
+      photo: "",
+      gender: ""
     });
     
     setIsDialogOpen(false);
@@ -91,44 +118,95 @@ const Internships = () => {
     });
   };
 
-  const handleGeneratePdf = (internId: number) => {
-    const intern = interns.find(i => i.id === internId);
-    if (intern) {
-      try {
-        generateInternPDF(intern);
-        toast({
-          title: "PDF généré avec succès",
-          description: `Le certificat de stage pour ${intern.firstName} ${intern.lastName} a été téléchargé.`,
-        });
-      } catch (error) {
-        toast({
-          title: "Erreur",
-          description: "Une erreur s'est produite lors de la génération du PDF.",
-          variant: "destructive",
-        });
-      }
-    }
+  const handleDeleteIntern = (id: number) => {
+    setInterns(interns.filter(intern => intern.id !== id));
+    toast({
+      title: "Stagiaire supprimé",
+      description: "Le stagiaire a été supprimé avec succès.",
+      variant: "destructive"
+    });
   };
 
+  const renderInternCard = (intern: Intern) => (
+    <Card key={intern.id} className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          <div className="p-6 flex-1">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="h-16 w-16 rounded-full bg-blue-800 flex items-center justify-center text-white text-lg font-bold overflow-hidden">
+                {intern.photo ? (
+                  <img src={intern.photo} alt={`${intern.firstName} ${intern.lastName}`} className="w-full h-full object-cover" />
+                ) : (
+                  `${intern.firstName.charAt(0)}${intern.lastName.charAt(0)}`
+                )}
+              </div>
+              <div>
+                <h3 className="font-bold text-lg">{intern.firstName} {intern.lastName}</h3>
+                <p className="text-sm text-muted-foreground">{intern.email}</p>
+                <p className="text-sm text-muted-foreground capitalize">{intern.gender}</p>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Intitulé du stage</p>
+                <p className="font-medium">{intern.title}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Période</p>
+                <p className="font-medium">
+                  {new Date(intern.startDate).toLocaleDateString('fr-FR')} au {new Date(intern.endDate).toLocaleDateString('fr-FR')}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Statut</p>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium inline-block ${
+                  intern.status === 'en cours' ? 'bg-blue-100 text-blue-800' :
+                  intern.status === 'fin' ? 'bg-green-100 text-green-800' :
+                  'bg-amber-100 text-amber-800'
+                }`}>
+                  {intern.status === 'en cours' ? 'En cours' : 
+                   intern.status === 'fin' ? 'Terminé' : 'À commencer'}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-6 flex flex-col justify-center space-y-3 md:w-48">
+            <Button variant="outline">
+              <Edit className="mr-2 h-4 w-4" />
+              Modifier
+            </Button>
+            <Button variant="destructive" onClick={() => handleDeleteIntern(intern.id)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <MainLayout title="Gestion des stages" currentPage="internships">
+    <MainLayout title="Stagiaires" currentPage="internships">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Stagiaires</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                  <path d="M5 12h14" /><path d="M12 5v14" />
-                </svg>
                 Ajouter un stagiaire
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Ajouter un nouveau stagiaire</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
+                <div className="flex justify-center mb-4">
+                  <PhotoUpload onPhotoChange={handlePhotoChange} />
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Prénom</Label>
@@ -149,6 +227,23 @@ const Internships = () => {
                     />
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="gender">Sexe</Label>
+                  <Select 
+                    value={formData.gender} 
+                    onValueChange={(value) => handleSelectChange("gender", value)}
+                  >
+                    <SelectTrigger id="gender">
+                      <SelectValue placeholder="Sélectionnez le sexe" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="masculin">Masculin</SelectItem>
+                      <SelectItem value="féminin">Féminin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="title">Intitulé du stage</Label>
                   <Input 
@@ -200,9 +295,8 @@ const Internships = () => {
                       <SelectValue placeholder="Sélectionnez un statut" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="début">Début</SelectItem>
                       <SelectItem value="en cours">En cours</SelectItem>
-                      <SelectItem value="fin">Fin</SelectItem>
+                      <SelectItem value="fin">Terminé</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -219,213 +313,18 @@ const Internships = () => {
             <TabsTrigger value="all">Tous</TabsTrigger>
             <TabsTrigger value="ongoing">En cours</TabsTrigger>
             <TabsTrigger value="completed">Terminés</TabsTrigger>
-            <TabsTrigger value="starting">À commencer</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all" className="space-y-6">
-            {interns.map(intern => (
-              <Card key={intern.id} className="overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="p-6 flex-1">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="h-12 w-12 rounded-full bg-blue-800 flex items-center justify-center text-white text-lg font-bold">
-                          {intern.firstName.charAt(0)}{intern.lastName.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-lg">{intern.firstName} {intern.lastName}</h3>
-                          <p className="text-sm text-muted-foreground">{intern.email}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Intitulé du stage</p>
-                          <p className="font-medium">{intern.title}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Période</p>
-                          <p className="font-medium">
-                            {new Date(intern.startDate).toLocaleDateString('fr-FR')} au {new Date(intern.endDate).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Statut</p>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium inline-block ${
-                            intern.status === 'en cours' ? 'bg-blue-100 text-blue-800' :
-                            intern.status === 'fin' ? 'bg-green-100 text-green-800' :
-                            'bg-amber-100 text-amber-800'
-                          }`}>
-                            {intern.status === 'en cours' ? 'En cours' : 
-                             intern.status === 'fin' ? 'Terminé' : 'À commencer'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-6 flex flex-col justify-center space-y-3 md:w-48">
-                      <Button onClick={() => handleGeneratePdf(intern.id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <path d="M9 15h6" /><path d="M9 18h6" /><path d="M9 12h2" />
-                        </svg>
-                        Télécharger PDF
-                      </Button>
-                      <Button variant="outline">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                        </svg>
-                        Modifier
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {interns.map(renderInternCard)}
           </TabsContent>
           
           <TabsContent value="ongoing" className="space-y-6">
-            {interns.filter(intern => intern.status === 'en cours').map(intern => (
-              <Card key={intern.id}>
-                {/* Same content structure as "all" tab */}
-                <CardContent className="p-0">
-                  <div className="flex flex-col md:flex-row">
-                    <div className="p-6 flex-1">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="h-12 w-12 rounded-full bg-blue-800 flex items-center justify-center text-white text-lg font-bold">
-                          {intern.firstName.charAt(0)}{intern.lastName.charAt(0)}
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-lg">{intern.firstName} {intern.lastName}</h3>
-                          <p className="text-sm text-muted-foreground">{intern.email}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Intitulé du stage</p>
-                          <p className="font-medium">{intern.title}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Période</p>
-                          <p className="font-medium">
-                            {new Date(intern.startDate).toLocaleDateString('fr-FR')} au {new Date(intern.endDate).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">Statut</p>
-                          <span className="px-3 py-1 rounded-full text-xs font-medium inline-block bg-blue-100 text-blue-800">
-                            En cours
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-50 p-6 flex flex-col justify-center space-y-3 md:w-48">
-                      <Button onClick={() => handleGeneratePdf(intern.id)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                          <polyline points="14 2 14 8 20 8" />
-                          <path d="M9 15h6" /><path d="M9 18h6" /><path d="M9 12h2" />
-                        </svg>
-                        Télécharger PDF
-                      </Button>
-                      <Button variant="outline">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                        </svg>
-                        Modifier
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {interns.filter(intern => intern.status === 'en cours').map(renderInternCard)}
           </TabsContent>
           
-          <TabsContent value="completed">
-            {/* Filter for completed interns */}
-            {interns.filter(intern => intern.status === 'fin').length > 0 ? (
-              interns.filter(intern => intern.status === 'fin').map(intern => (
-                <Card key={intern.id}>
-                  {/* Same content structure */}
-                  <CardContent className="p-0">
-                    <div className="flex flex-col md:flex-row">
-                      <div className="p-6 flex-1">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <div className="h-12 w-12 rounded-full bg-blue-800 flex items-center justify-center text-white text-lg font-bold">
-                            {intern.firstName.charAt(0)}{intern.lastName.charAt(0)}
-                          </div>
-                          <div>
-                            <h3 className="font-bold text-lg">{intern.firstName} {intern.lastName}</h3>
-                            <p className="text-sm text-muted-foreground">{intern.email}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Intitulé du stage</p>
-                            <p className="font-medium">{intern.title}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Période</p>
-                            <p className="font-medium">
-                              {new Date(intern.startDate).toLocaleDateString('fr-FR')} au {new Date(intern.endDate).toLocaleDateString('fr-FR')}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Statut</p>
-                            <span className="px-3 py-1 rounded-full text-xs font-medium inline-block bg-green-100 text-green-800">
-                              Terminé
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="bg-gray-50 p-6 flex flex-col justify-center space-y-3 md:w-48">
-                        <Button onClick={() => handleGeneratePdf(intern.id)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <path d="M9 15h6" /><path d="M9 18h6" /><path d="M9 12h2" />
-                          </svg>
-                          Télécharger PDF
-                        </Button>
-                        <Button variant="outline">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-                            <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
-                          </svg>
-                          Modifier
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-10">
-                <p className="text-muted-foreground">Aucun stage terminé pour le moment</p>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="starting">
-            {/* Filter for starting interns */}
-            {interns.filter(intern => intern.status === 'début').length > 0 ? (
-              interns.filter(intern => intern.status === 'début').map(intern => (
-                <Card key={intern.id}>
-                  {/* Same content structure */}
-                  <CardContent className="p-0">
-                    {/* Content similar to other tabs */}
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <div className="text-center py-10">
-                <p className="text-muted-foreground">Aucun stage à commencer pour le moment</p>
-              </div>
-            )}
+          <TabsContent value="completed" className="space-y-6">
+            {interns.filter(intern => intern.status === 'fin').map(renderInternCard)}
           </TabsContent>
         </Tabs>
       </div>

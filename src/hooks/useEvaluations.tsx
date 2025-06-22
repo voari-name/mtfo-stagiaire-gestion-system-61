@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EvaluationType } from "@/types/evaluations";
+import { generateEvaluationPDF } from "@/utils/evaluationPdfGenerator";
 
 // Sample data for evaluations
 const initialEvaluations = [
@@ -75,10 +76,19 @@ export const useEvaluations = () => {
   const handleGeneratePdf = (id: number) => {
     const evaluation = evaluations.find(e => e.id === id);
     if (evaluation) {
-      toast({
-        title: "PDF généré",
-        description: `Le fichier PDF pour l'évaluation de ${evaluation.firstName} ${evaluation.lastName} est prêt à être téléchargé.`,
-      });
+      try {
+        generateEvaluationPDF(evaluation);
+        toast({
+          title: "Certificat généré avec succès",
+          description: `Le certificat de stage pour ${evaluation.firstName} ${evaluation.lastName} a été téléchargé avec le logo officiel.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Une erreur s'est produite lors de la génération du certificat.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
