@@ -24,9 +24,9 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, 80, 'F');
   
-  // Logo République de Madagascar à gauche avec image
+  // Logo République de Madagascar à gauche avec la nouvelle image
   const logoImg = new Image();
-  logoImg.src = '/lovable-uploads/5892fd8e-6c80-40ec-ad0b-1869e82bd073.png';
+  logoImg.src = '/lovable-uploads/d9783536-a805-4722-af92-579aef58e0da.png';
   logoImg.onload = () => {
     doc.addImage(logoImg, 'PNG', 15, 10, 50, 40);
   };
@@ -40,9 +40,9 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.setFontSize(12);
   doc.text('Fitiavana - Tanindrazana - Fandrosoana', pageWidth / 2, yPosition + 10, { align: 'center' });
   
-  // Logo MTEFoP à droite avec image
+  // Logo MTEFoP à droite avec la nouvelle image
   const mtfopImg = new Image();
-  mtfopImg.src = '/lovable-uploads/c4628ed0-0fc5-4dd4-87d6-c410367e257c.png';
+  mtfopImg.src = '/lovable-uploads/63ed951d-9424-420b-b032-8466ab366df2.png';
   mtfopImg.onload = () => {
     doc.addImage(mtfopImg, 'PNG', pageWidth - 65, 10, 50, 40);
   };
