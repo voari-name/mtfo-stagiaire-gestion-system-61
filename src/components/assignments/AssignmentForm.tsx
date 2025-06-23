@@ -31,7 +31,7 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
     supervisor: assignment?.supervisor || "",
     company: assignment?.company || "",
     department: assignment?.department || "",
-    status: assignment?.status || "pending",
+    status: assignment?.status || "",
     startDate: assignment?.startDate || "",
     endDate: assignment?.endDate || ""
   });
@@ -47,7 +47,7 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
   };
 
   const handleSave = () => {
-    if (!formData.student || !formData.supervisor || !formData.company || !formData.department) {
+    if (!formData.student || !formData.supervisor || !formData.company || !formData.department || !formData.status) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires.",
@@ -76,7 +76,7 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
       supervisor: "",
       company: "",
       department: "",
-      status: "pending",
+      status: "",
       startDate: "",
       endDate: ""
     });
@@ -143,7 +143,7 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Statut</Label>
+            <Label htmlFor="status">Statut *</Label>
             <Select 
               value={formData.status} 
               onValueChange={(value) => handleSelectChange("status", value)}

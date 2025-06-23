@@ -1,17 +1,18 @@
 
 import jsPDF from 'jspdf';
 
-export interface EvaluationData {
+export interface AssignmentData {
   id: number;
-  firstName: string;
-  lastName: string;
+  student: string;
+  supervisor: string;
+  company: string;
+  department: string;
+  status: string;
   startDate: string;
   endDate: string;
-  grade: number;
-  comment: string;
 }
 
-export const generateEvaluationPDF = (evaluation: EvaluationData) => {
+export const generateAssignmentPDF = (assignment: AssignmentData) => {
   const doc = new jsPDF();
   
   // Configuration
@@ -24,7 +25,7 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, 80, 'F');
   
-  // Logo République de Madagascar à gauche avec image
+  // Logo République de Madagascar à gauche
   const logoImg = new Image();
   logoImg.src = '/lovable-uploads/5892fd8e-6c80-40ec-ad0b-1869e82bd073.png';
   logoImg.onload = () => {
@@ -34,13 +35,13 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   // Texte République centré
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(184, 134, 11); // couleur dorée
+  doc.setTextColor(184, 134, 11);
   doc.text('REPOBLIKAN\'I MADAGASIKARA', pageWidth / 2, yPosition, { align: 'center' });
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
   doc.text('Fitiavana - Tanindrazana - Fandrosoana', pageWidth / 2, yPosition + 10, { align: 'center' });
   
-  // Logo MTEFoP à droite avec image
+  // Logo MTEFoP à droite
   const mtfopImg = new Image();
   mtfopImg.src = '/lovable-uploads/c4628ed0-0fc5-4dd4-87d6-c410367e257c.png';
   mtfopImg.onload = () => {
@@ -49,77 +50,66 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   
   yPosition += 40;
   
-  // Ligne de séparation aux couleurs nationales
+  // Ligne de séparation
   doc.setLineWidth(4);
-  doc.setDrawColor(255, 0, 0); // Rouge
+  doc.setDrawColor(255, 0, 0);
   doc.line(margin, yPosition, pageWidth / 3, yPosition);
-  doc.setDrawColor(255, 255, 255); // Blanc
+  doc.setDrawColor(255, 255, 255);
   doc.line(pageWidth / 3, yPosition, (pageWidth / 3) * 2, yPosition);
-  doc.setDrawColor(0, 128, 0); // Vert
+  doc.setDrawColor(0, 128, 0);
   doc.line((pageWidth / 3) * 2, yPosition, pageWidth - margin, yPosition);
   
   yPosition += 25;
   
-  // Titre du certificat avec style amélioré
-  doc.setFontSize(32);
+  // Titre
+  doc.setFontSize(28);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(220, 20, 60); // Rouge
-  doc.text('CERTIFICAT DE STAGE', pageWidth / 2, yPosition, { align: 'center' });
+  doc.setTextColor(220, 20, 60);
+  doc.text('ORDRE D\'AFFECTATION DE STAGE', pageWidth / 2, yPosition, { align: 'center' });
   
   yPosition += 20;
   
-  // Sous-titre institution
+  // Sous-titre
   doc.setFontSize(16);
   doc.setTextColor(0, 0, 0);
   doc.setFont('helvetica', 'italic');
-  doc.text('République Démocratique de Madagascar', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 8;
   doc.text('Ministère du Travail, de l\'Emploi et de la Fonction Publique', pageWidth / 2, yPosition, { align: 'center' });
-  yPosition += 8;
-  doc.text('(MTEFoP)', pageWidth / 2, yPosition, { align: 'center' });
   
-  yPosition += 25;
+  yPosition += 30;
   
-  // Ligne de séparation décorative
-  doc.setLineWidth(2);
-  doc.setDrawColor(184, 134, 11); // Or
-  doc.line(margin + 40, yPosition, pageWidth - margin - 40, yPosition);
-  
-  yPosition += 20;
-  
-  // Corps du certificat avec mise en forme améliorée
+  // Corps du document
   doc.setFontSize(14);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
   
-  const certificateText = [
-    'Je soussigné(e), en qualité de responsable au sein du Ministère du',
-    'Travail, de l\'Emploi et de la Fonction Publique,',
+  const affectationText = [
+    'Par la présente, nous informons que :',
     '',
-    'CERTIFIE PAR LA PRÉSENTE QUE :',
+    `L'étudiant(e) : ${assignment.student.toUpperCase()}`,
     '',
-    `Monsieur/Madame ${evaluation.firstName.toUpperCase()} ${evaluation.lastName.toUpperCase()}`,
+    `est affecté(e) en stage dans l'entreprise : ${assignment.company.toUpperCase()}`,
+    `Département : ${assignment.department}`,
+    `Sous la supervision de : ${assignment.supervisor}`,
     '',
-    `a effectué un stage dans nos services du ${new Date(evaluation.startDate).toLocaleDateString('fr-FR')}`,
-    `au ${new Date(evaluation.endDate).toLocaleDateString('fr-FR')}.`,
+    `Période de stage : du ${new Date(assignment.startDate).toLocaleDateString('fr-FR')} au ${new Date(assignment.endDate).toLocaleDateString('fr-FR')}`,
     '',
-    'ÉVALUATION FINALE :',
-    `Note obtenue : ${evaluation.grade}/20`,
-    `Appréciation : ${evaluation.grade >= 16 ? 'TRÈS BIEN' : evaluation.grade >= 14 ? 'BIEN' : evaluation.grade >= 12 ? 'ASSEZ BIEN' : evaluation.grade >= 10 ? 'PASSABLE' : 'INSUFFISANT'}`,
+    `Statut actuel : ${assignment.status === 'assigned' ? 'AFFECTÉ' : assignment.status === 'pending' ? 'EN ATTENTE' : 'TERMINÉ'}`,
     '',
-    'COMMENTAIRES ET OBSERVATIONS :',
-    evaluation.comment || 'Aucun commentaire particulier.'
+    'Cette affectation est effective et doit être respectée par toutes les parties concernées.',
+    '',
+    'L\'étudiant(e) devra se présenter à l\'entreprise selon les modalités convenues',
+    'et respecter le règlement intérieur de l\'établissement d\'accueil.'
   ];
   
-  certificateText.forEach(line => {
-    if (line === 'CERTIFIE PAR LA PRÉSENTE QUE :' || line === 'ÉVALUATION FINALE :' || line === 'COMMENTAIRES ET OBSERVATIONS :') {
+  affectationText.forEach(line => {
+    if (line.includes(assignment.student.toUpperCase()) || line.includes(assignment.company.toUpperCase())) {
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(34, 139, 34); // Vert
+      doc.setTextColor(220, 20, 60);
       doc.setFontSize(16);
-    } else if (line.includes(evaluation.firstName.toUpperCase())) {
+    } else if (line.includes('Statut actuel') || line.includes('Période de stage')) {
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(220, 20, 60); // Rouge
-      doc.setFontSize(18);
+      doc.setTextColor(34, 139, 34);
+      doc.setFontSize(14);
     } else {
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(0, 0, 0);
@@ -149,9 +139,9 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
     yPosition += 10;
   });
   
-  yPosition += 25;
+  yPosition += 30;
   
-  // Section signature avec amélioration
+  // Signature
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
@@ -159,29 +149,19 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.text(new Date().toLocaleDateString('fr-FR'), margin + 80, yPosition);
   
   yPosition += 20;
-  doc.text('Le Ministre', pageWidth - margin - 80, yPosition);
-  doc.text('du MTEFoP', pageWidth - margin - 80, yPosition + 10);
+  doc.text('Le Responsable des Stages', pageWidth - margin - 100, yPosition);
+  doc.text('MTEFoP', pageWidth - margin - 100, yPosition + 10);
   
-  // Cadre décoratif amélioré
+  // Cadres décoratifs
   doc.setDrawColor(255, 0, 0);
   doc.setLineWidth(3);
   doc.rect(5, 5, pageWidth - 10, pageHeight - 10);
   
-  // Cadre intérieur doré
   doc.setDrawColor(184, 134, 11);
   doc.setLineWidth(1);
   doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
   
-  // Filigrane officiel
-  doc.setTextColor(245, 245, 245);
-  doc.setFontSize(60);
-  doc.setFont('helvetica', 'bold');
-  doc.text('OFFICIEL', pageWidth / 2, pageHeight / 2, { 
-    align: 'center', 
-    angle: 45 
-  });
-  
   // Télécharger le PDF
-  const fileName = `certificat_stage_${evaluation.firstName}_${evaluation.lastName}_${new Date().getFullYear()}.pdf`;
+  const fileName = `affectation_${assignment.student.replace(/\s+/g, '_')}_${new Date().getFullYear()}.pdf`;
   doc.save(fileName);
 };

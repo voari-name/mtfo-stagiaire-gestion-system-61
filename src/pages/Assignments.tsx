@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/contexts/SettingsContext";
 import { AssignmentForm } from "@/components/assignments/AssignmentForm";
-import { Edit, Eye, Trash2 } from "lucide-react";
+import { Edit, Download, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { generateAssignmentPDF } from "@/utils/assignmentPdfGenerator";
 
 interface Assignment {
   id: number;
@@ -26,28 +27,7 @@ const Assignments = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | undefined>();
 
-  const [assignments, setAssignments] = useState<Assignment[]>([
-    {
-      id: 1,
-      student: "RAHAJANIAINA Olivier",
-      supervisor: "Dr. RANDRIAMANALINA",
-      company: "Telma Madagascar",
-      department: "IT",
-      status: "assigned",
-      startDate: "2024-07-01",
-      endDate: "2024-12-31"
-    },
-    {
-      id: 2,
-      student: "RAKOTO Marie",
-      supervisor: "Ing. RAZAFY",
-      company: "Orange Madagascar",
-      department: "Engineering",
-      status: "pending",
-      startDate: "2024-08-01",
-      endDate: "2024-12-31"
-    }
-  ]);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,12 +66,26 @@ const Assignments = () => {
     });
   };
 
+  const handleDownloadPDF = (assignment: Assignment) => {
+    try {
+      generateAssignmentPDF(assignment);
+      toast({
+        title: "PDF généré avec succès",
+        description: `L'ordre d'affectation pour ${assignment.student} a été téléchargé.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la génération du PDF.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleSaveAssignment = (assignment: Assignment) => {
     if (editingAssignment) {
-      // Update existing assignment
       setAssignments(assignments.map(a => a.id === assignment.id ? assignment : a));
     } else {
-      // Add new assignment
       setAssignments([...assignments, assignment]);
     }
   };
@@ -106,57 +100,69 @@ const Assignments = () => {
           </Button>
         </div>
 
-        <div className="grid gap-4">
-          {assignments.map((assignment) => (
-            <Card key={assignment.id} className="hover:shadow-lg transition-all duration-300">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{assignment.student}</CardTitle>
-                    <CardDescription>{assignment.company} - {assignment.department}</CardDescription>
+        {assignments.length === 0 ? (
+          <Card className="text-center py-8">
+            <CardContent>
+              <p className="text-gray-500">Aucune affectation trouvée. Créez une nouvelle affectation pour commencer.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-4">
+            {assignments.map((assignment) => (
+              <Card key={assignment.id} className="hover:shadow-lg transition-all duration-300">
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-lg">{assignment.student}</CardTitle>
+                      <CardDescription>{assignment.company} - {assignment.department}</CardDescription>
+                    </div>
+                    <Badge className={`${getStatusColor(assignment.status)} text-white`}>
+                      {getStatusText(assignment.status)}
+                    </Badge>
                   </div>
-                  <Badge className={`${getStatusColor(assignment.status)} text-white`}>
-                    {getStatusText(assignment.status)}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                  <div>
-                    <span className="font-medium">Encadreur: </span>
-                    {assignment.supervisor}
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <span className="font-medium">Encadreur: </span>
+                      {assignment.supervisor}
+                    </div>
+                    <div>
+                      <span className="font-medium">Période: </span>
+                      {assignment.startDate} - {assignment.endDate}
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-medium">Période: </span>
-                    {assignment.startDate} - {assignment.endDate}
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleEditAssignment(assignment)}
+                    >
+                      <Edit className="mr-2 h-4 w-4" />
+                      Modifier
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDownloadPDF(assignment)}
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Télécharger PDF
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => handleDeleteAssignment(assignment.id)}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Supprimer
+                    </Button>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleEditAssignment(assignment)}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Eye className="mr-2 h-4 w-4" />
-                    Détails
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    onClick={() => handleDeleteAssignment(assignment.id)}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Supprimer
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
         <AssignmentForm
           isOpen={isFormOpen}
