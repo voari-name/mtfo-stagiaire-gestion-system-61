@@ -2,16 +2,13 @@
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/contexts/SettingsContext";
 
 const Settings = () => {
-  const { toast } = useToast();
   const { 
     darkMode, 
     brightness, 
@@ -21,30 +18,6 @@ const Settings = () => {
     setLanguage,
     translations 
   } = useSettings();
-
-  const handleSaveSettings = () => {
-    toast({
-      title: "Paramètres mis à jour",
-      description: "Vos préférences ont été enregistrées avec succès."
-    });
-  };
-
-  const handleExportData = () => {
-    toast({
-      title: "Exportation des données",
-      description: "Vos données sont en cours d'exportation. Vous recevrez un email lorsque l'exportation sera terminée."
-    });
-  };
-
-  const handleDeleteAccount = () => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.")) {
-      toast({
-        title: "Compte supprimé",
-        description: "Votre compte a été supprimé avec succès.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const languages = [
     { value: "fr", label: "Français" },
@@ -121,40 +94,6 @@ const Settings = () => {
             </p>
           </CardContent>
         </Card>
-        
-        <Card className="hover:shadow-lg transition-all duration-300 animate-fade-in" style={{animationDelay: '0.4s'}}>
-          <CardHeader>
-            <CardTitle className="text-blue-800">Exportation de données</CardTitle>
-            <CardDescription>Téléchargez ou supprimez vos données</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col space-y-2">
-              <Button 
-                variant="outline" 
-                onClick={handleExportData}
-                className="hover-scale transition-all duration-300"
-              >
-                Exporter mes données
-              </Button>
-              <Button 
-                variant="outline" 
-                className="text-red-600 border-red-600 hover:bg-red-50 hover-scale transition-all duration-300"
-                onClick={handleDeleteAccount}
-              >
-                Supprimer mon compte
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <div className="flex justify-end animate-fade-in" style={{animationDelay: '0.6s'}}>
-          <Button 
-            onClick={handleSaveSettings}
-            className="hover-scale transition-all duration-300"
-          >
-            Enregistrer les paramètres
-          </Button>
-        </div>
       </div>
     </MainLayout>
   );

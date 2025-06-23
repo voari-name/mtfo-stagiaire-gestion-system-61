@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useInterns } from "@/hooks/useInterns";
+import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 import { X } from "lucide-react";
 
 interface CreateProjectDialogProps {
@@ -23,17 +23,18 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    startDate: "",
-    endDate: ""
+    description: "",
+    start_date: "",
+    end_date: ""
   });
   const [selectedInterns, setSelectedInterns] = useState<any[]>([]);
   const { toast } = useToast();
-  const { interns } = useInterns();
+  const { interns } = useSupabaseInterns();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title || !formData.startDate || !formData.endDate) {
+    if (!formData.title || !formData.start_date || !formData.end_date) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires",
@@ -42,40 +43,42 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
       return;
     }
 
-    const newProject = {
-      id: Date.now(),
-      title: formData.title,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      interns: selectedInterns.map(intern => ({
-        id: intern.id,
-        name: `${intern.firstName} ${intern.lastName}`,
-        status: "en cours",
-        completion: 0
-      })),
-      tasks: []
-    };
+    try {
+      const newProject = {
+        title: formData.title,
+        description: formData.description,
+        start_date: formData.start_date,
+        end_date: formData.end_date
+      };
 
-    onProjectCreated(newProject);
-    
-    toast({
-      title: "Projet créé",
-      description: "Le nouveau projet a été créé avec succès"
-    });
+      await onProjectCreated(newProject);
+      
+      toast({
+        title: "Projet créé",
+        description: "Le nouveau projet a été créé avec succès"
+      });
 
-    setFormData({ title: "", startDate: "", endDate: "" });
-    setSelectedInterns([]);
-    onOpenChange(false);
+      setFormData({ title: "", description: "", start_date: "", end_date: "" });
+      setSelectedInterns([]);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Erreur lors de la création du projet:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le projet.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleAddIntern = (internId: string) => {
-    const intern = interns.find(i => i.id.toString() === internId);
+    const intern = interns.find(i => i.id === internId);
     if (intern && !selectedInterns.find(i => i.id === intern.id)) {
       setSelectedInterns([...selectedInterns, intern]);
     }
   };
 
-  const handleRemoveIntern = (internId: number) => {
+  const handleRemoveIntern = (internId: string) => {
     setSelectedInterns(selectedInterns.filter(i => i.id !== internId));
   };
 
@@ -108,27 +111,39 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="startDate" className="text-right">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Input
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="col-span-3"
+                placeholder="Description du projet"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="start_date" className="text-right">
                 Date début *
               </Label>
               <Input
-                id="startDate"
+                id="start_date"
                 type="date"
-                value={formData.startDate}
-                onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                value={formData.start_date}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 className="col-span-3"
                 required
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="endDate" className="text-right">
+              <Label htmlFor="end_date" className="text-right">
                 Date fin *
               </Label>
               <Input
-                id="endDate"
+                id="end_date"
                 type="date"
-                value={formData.endDate}
-                onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                value={formData.end_date}
+                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                 className="col-span-3"
                 required
               />
@@ -138,24 +153,26 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 Stagiaires
               </Label>
               <div className="col-span-3 space-y-3">
-                <Select onValueChange={handleAddIntern}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Ajouter un stagiaire" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableInterns.map(intern => (
-                      <SelectItem key={intern.id} value={intern.id.toString()}>
-                        {intern.firstName} {intern.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {availableInterns.length > 0 && (
+                  <Select onValueChange={handleAddIntern}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Ajouter un stagiaire" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {availableInterns.map(intern => (
+                        <SelectItem key={intern.id} value={intern.id}>
+                          {intern.first_name} {intern.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
                 
                 {selectedInterns.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedInterns.map(intern => (
                       <Badge key={intern.id} variant="secondary" className="flex items-center gap-1">
-                        {intern.firstName} {intern.lastName}
+                        {intern.first_name} {intern.last_name}
                         <X 
                           className="h-3 w-3 cursor-pointer" 
                           onClick={() => handleRemoveIntern(intern.id)}
@@ -163,6 +180,12 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                       </Badge>
                     ))}
                   </div>
+                )}
+                
+                {availableInterns.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Aucun stagiaire disponible. Ajoutez d'abord des stagiaires dans la section "Stagiaires".
+                  </p>
                 )}
               </div>
             </div>

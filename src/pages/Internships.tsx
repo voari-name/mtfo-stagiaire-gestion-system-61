@@ -178,7 +178,7 @@ const Internships = () => {
           <h2 className="text-3xl font-bold text-gray-800">Stagiaires</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg">
+              <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg" onClick={() => setIsDialogOpen(true)}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
                   <path d="M5 12h14" /><path d="M12 5v14" />
                 </svg>
@@ -231,7 +231,6 @@ const Internships = () => {
                   <Select 
                     value={formData.gender} 
                     onValueChange={(value) => handleSelectChange("gender", value)}
-                    required
                   >
                     <SelectTrigger id="gender" className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Sélectionnez le sexe" />
@@ -310,7 +309,13 @@ const Internships = () => {
         </div>
 
         <div className="space-y-4">
-          {interns.map(renderInternCard)}
+          {interns.length > 0 ? (
+            interns.map(renderInternCard)
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Aucun stagiaire trouvé. Ajoutez votre premier stagiaire.</p>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>
