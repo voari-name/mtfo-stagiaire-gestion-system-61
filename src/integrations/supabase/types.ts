@@ -9,6 +9,41 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      evaluations: {
+        Row: {
+          comment: string | null
+          created_at: string
+          grade: number
+          id: string
+          intern_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          grade: number
+          id?: string
+          intern_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          grade?: number
+          id?: string
+          intern_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluations_intern_id_fkey"
+            columns: ["intern_id"]
+            isOneToOne: false
+            referencedRelation: "interns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interns: {
         Row: {
           completion: number | null
@@ -24,6 +59,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           completion?: number | null
@@ -39,6 +75,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           completion?: number | null
@@ -54,6 +91,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -129,6 +167,7 @@ export type Database = {
           start_date: string
           title: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -138,6 +177,7 @@ export type Database = {
           start_date: string
           title: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -147,6 +187,7 @@ export type Database = {
           start_date?: string
           title?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

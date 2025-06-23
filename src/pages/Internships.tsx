@@ -1,122 +1,83 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PhotoUpload } from "@/components/ui/photo-upload";
 import { Edit, Trash2 } from "lucide-react";
-
-interface Intern {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  photo?: string;
-  gender: string;
-}
-
-const initialInterns: Intern[] = [
-  { 
-    id: 1, 
-    firstName: "Jean", 
-    lastName: "Rakoto", 
-    email: "jean.rakoto@example.com",
-    gender: "masculin"
-  },
-  { 
-    id: 2, 
-    firstName: "Marie", 
-    lastName: "Razafy", 
-    email: "marie.razafy@example.com",
-    gender: "féminin"
-  },
-  { 
-    id: 3, 
-    firstName: "Hery", 
-    lastName: "Randriamaro", 
-    email: "hery.r@example.com",
-    gender: "masculin"
-  },
-];
+import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 
 const Internships = () => {
-  const [interns, setInterns] = useState<Intern[]>(initialInterns);
+  const {
+    interns,
+    loading,
+    createIntern,
+    deleteIntern,
+    updateIntern
+  } = useSupabaseInterns();
+
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
     photo: "",
-    gender: ""
+    gender: "",
+    title: "",
+    start_date: "",
+    end_date: "",
+    status: "en cours"
   });
-  const [editingIntern, setEditingIntern] = useState<Intern | null>(null);
+  const [editingIntern, setEditingIntern] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const handleSelectChange = (name, value) => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handlePhotoChange = (photo: string | null) => {
+  const handlePhotoChange = (photo) => {
     setFormData({ ...formData, photo: photo || "" });
   };
 
   const resetForm = () => {
     setFormData({
-      firstName: "",
-      lastName: "",
+      first_name: "",
+      last_name: "",
       email: "",
       photo: "",
-      gender: ""
+      gender: "",
+      title: "",
+      start_date: "",
+      end_date: "",
+      status: "en cours"
     });
     setEditingIntern(null);
   };
 
-  const handleSave = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.gender) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs obligatoires.",
-        variant: "destructive"
-      });
+  const handleSave = async () => {
+    if (!formData.first_name || !formData.last_name || !formData.email || !formData.gender || !formData.title || !formData.start_date || !formData.end_date) {
       return;
     }
 
-    if (editingIntern) {
-      // Modifier un stagiaire existant
-      setInterns(interns.map(intern => 
-        intern.id === editingIntern.id 
-          ? { ...editingIntern, ...formData }
-          : intern
-      ));
-      toast({
-        title: "Stagiaire modifié",
-        description: `${formData.firstName} ${formData.lastName} a été modifié avec succès.`,
-      });
-    } else {
-      // Ajouter un nouveau stagiaire
-      const newIntern: Intern = {
-        id: interns.length + 1,
-        ...formData
-      };
-      setInterns([...interns, newIntern]);
-      toast({
-        title: "Stagiaire ajouté",
-        description: `${formData.firstName} ${formData.lastName} a été ajouté avec succès.`,
-      });
+    try {
+      if (editingIntern) {
+        await updateIntern(editingIntern.id, formData);
+      } else {
+        await createIntern(formData);
+      }
+      resetForm();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
     }
-
-    resetForm();
-    setIsDialogOpen(false);
   };
 
   const handleCancel = () => {
@@ -124,29 +85,44 @@ const Internships = () => {
     setIsDialogOpen(false);
   };
 
-  const handleEditIntern = (intern: Intern) => {
+  const handleEditIntern = (intern) => {
     setEditingIntern(intern);
     setFormData({
-      firstName: intern.firstName,
-      lastName: intern.lastName,
+      first_name: intern.first_name,
+      last_name: intern.last_name,
       email: intern.email,
       photo: intern.photo || "",
-      gender: intern.gender
+      gender: intern.gender,
+      title: intern.title,
+      start_date: intern.start_date,
+      end_date: intern.end_date,
+      status: intern.status
     });
     setIsDialogOpen(true);
   };
 
-  const handleDeleteIntern = (id: number) => {
-    const deletedIntern = interns.find(intern => intern.id === id);
-    setInterns(interns.filter(intern => intern.id !== id));
-    toast({
-      title: "Stagiaire supprimé",
-      description: `${deletedIntern?.firstName} ${deletedIntern?.lastName} a été supprimé avec succès.`,
-      variant: "destructive"
-    });
+  const handleDeleteIntern = async (id) => {
+    try {
+      await deleteIntern(id);
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+    }
   };
 
-  const renderInternCard = (intern: Intern) => (
+  if (loading) {
+    return (
+      <MainLayout title="Stagiaires" currentPage="internships">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p>Chargement des stagiaires...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  const renderInternCard = (intern) => (
     <Card key={intern.id} className="overflow-hidden hover:shadow-lg transition-all duration-300">
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row">
@@ -154,14 +130,15 @@ const Internships = () => {
             <div className="flex items-center space-x-4 mb-4">
               <div className="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-lg font-bold overflow-hidden shadow-lg">
                 {intern.photo ? (
-                  <img src={intern.photo} alt={`${intern.firstName} ${intern.lastName}`} className="w-full h-full object-cover" />
+                  <img src={intern.photo} alt={`${intern.first_name} ${intern.last_name}`} className="w-full h-full object-cover" />
                 ) : (
-                  `${intern.firstName.charAt(0)}${intern.lastName.charAt(0)}`
+                  `${intern.first_name.charAt(0)}${intern.last_name.charAt(0)}`
                 )}
               </div>
               <div>
-                <h3 className="font-bold text-xl text-gray-800">{intern.firstName} {intern.lastName}</h3>
+                <h3 className="font-bold text-xl text-gray-800">{intern.first_name} {intern.last_name}</h3>
                 <p className="text-sm text-blue-600 font-medium">{intern.email}</p>
+                <p className="text-sm text-gray-600">{intern.title}</p>
                 <p className="text-sm text-gray-500 capitalize mt-1">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                     {intern.gender}
@@ -215,7 +192,6 @@ const Internships = () => {
                 </DialogTitle>
               </DialogHeader>
               <div className="grid gap-6 py-6">
-                {/* Photo */}
                 <div className="flex justify-center">
                   <div className="text-center">
                     <Label className="text-sm font-medium text-gray-700 mb-2 block">Photo</Label>
@@ -223,14 +199,13 @@ const Internships = () => {
                   </div>
                 </div>
                 
-                {/* Nom et Prénom */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Nom *</Label>
+                    <Label htmlFor="last_name" className="text-sm font-medium text-gray-700">Nom *</Label>
                     <Input 
-                      id="lastName" 
-                      name="lastName" 
-                      value={formData.lastName} 
+                      id="last_name" 
+                      name="last_name" 
+                      value={formData.last_name} 
                       onChange={handleInputChange} 
                       required
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -238,11 +213,11 @@ const Internships = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">Prénom *</Label>
+                    <Label htmlFor="first_name" className="text-sm font-medium text-gray-700">Prénom *</Label>
                     <Input 
-                      id="firstName" 
-                      name="firstName" 
-                      value={formData.firstName} 
+                      id="first_name" 
+                      name="first_name" 
+                      value={formData.first_name} 
                       onChange={handleInputChange} 
                       required
                       className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -251,7 +226,6 @@ const Internships = () => {
                   </div>
                 </div>
 
-                {/* Sexe */}
                 <div className="space-y-2">
                   <Label htmlFor="gender" className="text-sm font-medium text-gray-700">Sexe *</Label>
                   <Select 
@@ -269,7 +243,6 @@ const Internships = () => {
                   </Select>
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email *</Label>
                   <Input 
@@ -282,6 +255,46 @@ const Internships = () => {
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                     placeholder="exemple@email.com"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-sm font-medium text-gray-700">Titre du stage *</Label>
+                  <Input 
+                    id="title" 
+                    name="title" 
+                    value={formData.title} 
+                    onChange={handleInputChange} 
+                    required
+                    className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Développement Web, Gestion..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start_date" className="text-sm font-medium text-gray-700">Date de début *</Label>
+                    <Input 
+                      id="start_date" 
+                      name="start_date" 
+                      type="date"
+                      value={formData.start_date} 
+                      onChange={handleInputChange} 
+                      required
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end_date" className="text-sm font-medium text-gray-700">Date de fin *</Label>
+                    <Input 
+                      id="end_date" 
+                      name="end_date" 
+                      type="date"
+                      value={formData.end_date} 
+                      onChange={handleInputChange} 
+                      required
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-4 border-t">

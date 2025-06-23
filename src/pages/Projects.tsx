@@ -6,23 +6,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProjectsList from "@/components/projects/ProjectsList";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
-import { useProjects } from "@/hooks/useProjects";
+import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
 
 const Projects = () => {
   const {
     projects,
-    selectedProject,
-    isDetailsOpen,
-    setIsDetailsOpen,
-    handleViewDetails,
-    addProject,
-    calculateProgress,
-    getStatusColor,
+    loading,
+    createProject,
     deleteProject,
-    editProject
-  } = useProjects();
+    updateProject,
+    calculateProgress
+  } = useSupabaseProjects();
 
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const handleViewDetails = (project) => {
+    setSelectedProject(project);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEditProject = (project) => {
+    setSelectedProject(project);
+    // Ici on pourrait ouvrir un dialog d'édition
+    setIsDetailsOpen(true);
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "completed": return "bg-green-500";
+      case "in-progress": return "bg-blue-500";
+      case "not-started": return "bg-gray-300";
+      default: return "bg-gray-300";
+    }
+  };
+
+  if (loading) {
+    return (
+      <MainLayout title="Gestion des projets" currentPage="projects">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p>Chargement des projets...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title="Gestion des projets" currentPage="projects">
@@ -50,7 +81,7 @@ const Projects = () => {
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
               onDeleteProject={deleteProject}
-              onEditProject={editProject}
+              onEditProject={handleEditProject}
             />
           </TabsContent>
           
@@ -60,7 +91,7 @@ const Projects = () => {
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
               onDeleteProject={deleteProject}
-              onEditProject={editProject}
+              onEditProject={handleEditProject}
             />
           </TabsContent>
           
@@ -70,7 +101,7 @@ const Projects = () => {
               calculateProgress={calculateProgress}
               onViewDetails={handleViewDetails}
               onDeleteProject={deleteProject}
-              onEditProject={editProject}
+              onEditProject={handleEditProject}
             />
           </TabsContent>
         </Tabs>
@@ -81,12 +112,13 @@ const Projects = () => {
         open={isDetailsOpen} 
         onOpenChange={setIsDetailsOpen} 
         getStatusColor={getStatusColor}
+        onEditProject={updateProject}
       />
 
       <CreateProjectDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onProjectCreated={addProject}
+        onProjectCreated={createProject}
       />
     </MainLayout>
   );

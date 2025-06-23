@@ -24,12 +24,17 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, pageWidth, 80, 'F');
   
-  // Logo République de Madagascar à gauche avec la nouvelle image
+  // Charger et ajouter le logo République de Madagascar à gauche
   const logoImg = new Image();
-  logoImg.src = '/lovable-uploads/d9783536-a805-4722-af92-579aef58e0da.png';
+  logoImg.crossOrigin = 'anonymous';
   logoImg.onload = () => {
-    doc.addImage(logoImg, 'PNG', 15, 10, 50, 40);
+    try {
+      doc.addImage(logoImg, 'PNG', 15, 10, 50, 40);
+    } catch (error) {
+      console.warn('Erreur lors du chargement du logo République:', error);
+    }
   };
+  logoImg.src = '/lovable-uploads/d9783536-a805-4722-af92-579aef58e0da.png';
   
   // Texte République centré
   doc.setFontSize(14);
@@ -40,12 +45,17 @@ export const generateEvaluationPDF = (evaluation: EvaluationData) => {
   doc.setFontSize(12);
   doc.text('Fitiavana - Tanindrazana - Fandrosoana', pageWidth / 2, yPosition + 10, { align: 'center' });
   
-  // Logo MTEFoP à droite avec la nouvelle image
+  // Charger et ajouter le logo MTEFoP à droite
   const mtfopImg = new Image();
-  mtfopImg.src = '/lovable-uploads/63ed951d-9424-420b-b032-8466ab366df2.png';
+  mtfopImg.crossOrigin = 'anonymous';
   mtfopImg.onload = () => {
-    doc.addImage(mtfopImg, 'PNG', pageWidth - 65, 10, 50, 40);
+    try {
+      doc.addImage(mtfopImg, 'PNG', pageWidth - 65, 10, 50, 40);
+    } catch (error) {
+      console.warn('Erreur lors du chargement du logo MTEFoP:', error);
+    }
   };
+  mtfopImg.src = '/lovable-uploads/63ed951d-9424-420b-b032-8466ab366df2.png';
   
   yPosition += 40;
   
