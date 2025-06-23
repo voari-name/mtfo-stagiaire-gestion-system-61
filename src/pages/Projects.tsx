@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProjectsList from "@/components/projects/ProjectsList";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
-import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
+import { useSupabaseProjects, ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 
 const Projects = () => {
   const {
@@ -18,22 +18,22 @@ const Projects = () => {
     calculateProgress
   } = useSupabaseProjects();
 
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithDetails | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const handleViewDetails = (project) => {
+  const handleViewDetails = (project: ProjectWithDetails) => {
     setSelectedProject(project);
     setIsDetailsOpen(true);
   };
 
-  const handleEditProject = (project) => {
+  const handleEditProject = (project: ProjectWithDetails) => {
     setSelectedProject(project);
     // Ici on pourrait ouvrir un dialog d'édition
     setIsDetailsOpen(true);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "completed": return "bg-green-500";
       case "in-progress": return "bg-blue-500";

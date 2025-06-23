@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Project } from "@/hooks/useProjects";
+import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 
 interface ProjectCardProps {
-  project: Project;
+  project: ProjectWithDetails;
   progress: number;
-  onViewDetails: (project: Project) => void;
+  onViewDetails: (project: ProjectWithDetails) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ 
@@ -54,7 +54,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               <div className="space-y-2">
                 {project.interns.map(intern => (
                   <div key={intern.id} className="flex items-center justify-between">
-                    <span className="text-sm">{intern.name}</span>
+                    <span className="text-sm">{intern.first_name} {intern.last_name}</span>
                     <Badge variant="outline" className={
                       intern.status === 'fin' ? 'border-green-500 text-green-700 bg-green-50' : 
                       intern.status === 'en cours' ? 'border-blue-500 text-blue-700 bg-blue-50' : 

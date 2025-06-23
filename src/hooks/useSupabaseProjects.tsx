@@ -12,6 +12,9 @@ type Task = Database['public']['Tables']['tasks']['Row'];
 export interface ProjectWithDetails extends Project {
   interns: Intern[];
   tasks: Task[];
+  // Ajouter des propriétés pour la compatibilité avec les composants existants
+  startDate: string;
+  endDate: string;
 }
 
 export const useSupabaseProjects = () => {
@@ -57,7 +60,10 @@ export const useSupabaseProjects = () => {
           return {
             ...project,
             interns: projectInterns?.map(pi => pi.interns).filter(Boolean) || [],
-            tasks: tasks || []
+            tasks: tasks || [],
+            // Ajouter les propriétés de compatibilité
+            startDate: project.start_date,
+            endDate: project.end_date
           };
         })
       );

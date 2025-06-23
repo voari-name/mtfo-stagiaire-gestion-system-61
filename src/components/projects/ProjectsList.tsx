@@ -1,17 +1,17 @@
 
 import React from "react";
-import { Project } from "@/hooks/useProjects";
+import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import ProjectCard from "./ProjectCard";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProjectsListProps {
-  projects: Project[];
+  projects: ProjectWithDetails[];
   calculateProgress: (tasks: any[]) => number;
-  onViewDetails: (project: Project) => void;
-  onDeleteProject?: (id: number) => void;
-  onEditProject?: (project: Project) => void;
+  onViewDetails: (project: ProjectWithDetails) => void;
+  onDeleteProject?: (id: string) => void;
+  onEditProject?: (project: ProjectWithDetails) => void;
 }
 
 const ProjectsList: React.FC<ProjectsListProps> = ({ 
@@ -23,7 +23,7 @@ const ProjectsList: React.FC<ProjectsListProps> = ({
 }) => {
   const { toast } = useToast();
 
-  const handleDelete = (project: Project) => {
+  const handleDelete = (project: ProjectWithDetails) => {
     if (onDeleteProject) {
       onDeleteProject(project.id);
       toast({
@@ -34,7 +34,7 @@ const ProjectsList: React.FC<ProjectsListProps> = ({
     }
   };
 
-  const handleEdit = (project: Project) => {
+  const handleEdit = (project: ProjectWithDetails) => {
     if (onEditProject) {
       onEditProject(project);
       toast({
