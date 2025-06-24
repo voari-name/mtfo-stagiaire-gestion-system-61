@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { PhotoUpload } from "@/components/ui/photo-upload";
 import { Edit, Trash2 } from "lucide-react";
 import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 const Internships = () => {
+  const { user, loading: authLoading } = useAuth();
   const {
     interns,
     loading,
@@ -33,6 +35,19 @@ const Internships = () => {
   });
   const [editingIntern, setEditingIntern] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Redirect to auth if not authenticated
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
