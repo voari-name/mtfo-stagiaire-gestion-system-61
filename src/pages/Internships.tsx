@@ -62,8 +62,13 @@ const Internships = () => {
     setEditingIntern(null);
   };
 
-  const handleSave = async () => {
-    if (!formData.first_name || !formData.last_name || !formData.email || !formData.gender || !formData.title || !formData.start_date || !formData.end_date) {
+  const handleSave = async (e) => {
+    e.preventDefault();
+    
+    // Validation des champs requis
+    if (!formData.first_name.trim() || !formData.last_name.trim() || !formData.email.trim() || 
+        !formData.gender || !formData.title.trim() || !formData.start_date || !formData.end_date) {
+      alert("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
@@ -77,6 +82,7 @@ const Internships = () => {
       setIsDialogOpen(false);
     } catch (error) {
       console.error('Erreur lors de la sauvegarde:', error);
+      alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
     }
   };
 
@@ -102,10 +108,13 @@ const Internships = () => {
   };
 
   const handleDeleteIntern = async (id) => {
-    try {
-      await deleteIntern(id);
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer ce stagiaire ?')) {
+      try {
+        await deleteIntern(id);
+      } catch (error) {
+        console.error('Erreur lors de la suppression:', error);
+        alert('Erreur lors de la suppression. Veuillez réessayer.');
+      }
     }
   };
 
@@ -175,7 +184,6 @@ const Internships = () => {
     <MainLayout title="Stagiaires" currentPage="internships">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-gray-800">Stagiaires</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg" onClick={() => setIsDialogOpen(true)}>
@@ -191,7 +199,7 @@ const Internships = () => {
                   {editingIntern ? "Modifier le stagiaire" : "Ajouter un nouveau stagiaire"}
                 </DialogTitle>
               </DialogHeader>
-              <div className="grid gap-6 py-6">
+              <form onSubmit={handleSave} className="grid gap-6 py-6">
                 <div className="flex justify-center">
                   <div className="text-center">
                     <Label className="text-sm font-medium text-gray-700 mb-2 block">Photo</Label>
@@ -231,6 +239,7 @@ const Internships = () => {
                   <Select 
                     value={formData.gender} 
                     onValueChange={(value) => handleSelectChange("gender", value)}
+                    required
                   >
                     <SelectTrigger id="gender" className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                       <SelectValue placeholder="Sélectionnez le sexe" />
@@ -295,15 +304,16 @@ const Internships = () => {
                     />
                   </div>
                 </div>
-              </div>
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button variant="outline" onClick={handleCancel} className="px-6">
-                  Annuler
-                </Button>
-                <Button onClick={handleSave} className="bg-blue-600 hover:bg-blue-700 px-6">
-                  Enregistrer
-                </Button>
-              </div>
+
+                <div className="flex justify-end gap-3 pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={handleCancel} className="px-6">
+                    Annuler
+                  </Button>
+                  <Button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6">
+                    Enregistrer
+                  </Button>
+                </div>
+              </form>
             </DialogContent>
           </Dialog>
         </div>
