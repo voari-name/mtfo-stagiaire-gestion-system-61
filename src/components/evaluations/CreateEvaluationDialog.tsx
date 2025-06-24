@@ -14,8 +14,8 @@ interface CreateEvaluationDialogProps {
 export const CreateEvaluationDialog = ({ onEvaluationCreated }: CreateEvaluationDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
     lastName: "",
+    firstName: "",
     startDate: "",
     endDate: "",
     grade: "",
@@ -25,10 +25,15 @@ export const CreateEvaluationDialog = ({ onEvaluationCreated }: CreateEvaluation
   const { toast } = useToast();
 
   const gradeOptions = [
-    { value: "18-20", label: "Excellent (18-20)", text: "Excellent" },
-    { value: "16-17", label: "Très bien (16-17)", text: "Très bien" },
-    { value: "14-15", label: "Bien (14-15)", text: "Bien" },
-    { value: "12-13", label: "Assez bien (12-13)", text: "Assez bien" }
+    { value: "18", label: "18/20 - Excellent", text: "Excellent" },
+    { value: "19", label: "19/20 - Excellent", text: "Excellent" },
+    { value: "20", label: "20/20 - Excellent", text: "Excellent" },
+    { value: "16", label: "16/20 - Très bien", text: "Très bien" },
+    { value: "17", label: "17/20 - Très bien", text: "Très bien" },
+    { value: "14", label: "14/20 - Bien", text: "Bien" },
+    { value: "15", label: "15/20 - Bien", text: "Bien" },
+    { value: "12", label: "12/20 - Assez bien", text: "Assez bien" },
+    { value: "13", label: "13/20 - Assez bien", text: "Assez bien" }
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,11 +43,9 @@ export const CreateEvaluationDialog = ({ onEvaluationCreated }: CreateEvaluation
 
   const handleGradeChange = (value: string) => {
     const selectedGrade = gradeOptions.find(option => option.value === value);
-    const numericGrade = value.split('-')[1] || value.split('-')[0];
-    
     setFormData({ 
       ...formData, 
-      grade: numericGrade,
+      grade: value,
       gradeText: selectedGrade?.text || ""
     });
   };
@@ -64,14 +67,14 @@ export const CreateEvaluationDialog = ({ onEvaluationCreated }: CreateEvaluation
       startDate: formData.startDate,
       endDate: formData.endDate,
       grade: parseInt(formData.grade),
-      comment: formData.comment || `Évaluation ${formData.gradeText.toLowerCase()}`
+      comment: formData.comment
     };
 
     onEvaluationCreated(newEvaluation);
     
     setFormData({
-      firstName: "",
       lastName: "",
+      firstName: "",
       startDate: "",
       endDate: "",
       grade: "",
@@ -105,51 +108,49 @@ export const CreateEvaluationDialog = ({ onEvaluationCreated }: CreateEvaluation
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Prénom *</Label>
-              <Input 
-                id="firstName" 
-                name="firstName" 
-                value={formData.firstName} 
-                onChange={handleInputChange}
-                className="transition-all duration-300 focus:scale-105"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nom *</Label>
-              <Input 
-                id="lastName" 
-                name="lastName" 
-                value={formData.lastName} 
-                onChange={handleInputChange}
-                className="transition-all duration-300 focus:scale-105"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Nom *</Label>
+            <Input 
+              id="lastName" 
+              name="lastName" 
+              value={formData.lastName} 
+              onChange={handleInputChange}
+              placeholder="Nom de famille"
+              className="transition-all duration-300 focus:scale-105"
+            />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Date de début *</Label>
-              <Input 
-                id="startDate" 
-                name="startDate" 
-                type="date" 
-                value={formData.startDate} 
-                onChange={handleInputChange}
-                className="transition-all duration-300 focus:scale-105"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">Date de fin *</Label>
-              <Input 
-                id="endDate" 
-                name="endDate" 
-                type="date" 
-                value={formData.endDate} 
-                onChange={handleInputChange}
-                className="transition-all duration-300 focus:scale-105"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="firstName">Prénom *</Label>
+            <Input 
+              id="firstName" 
+              name="firstName" 
+              value={formData.firstName} 
+              onChange={handleInputChange}
+              placeholder="Prénom"
+              className="transition-all duration-300 focus:scale-105"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="startDate">Date de début *</Label>
+            <Input 
+              id="startDate" 
+              name="startDate" 
+              type="date" 
+              value={formData.startDate} 
+              onChange={handleInputChange}
+              className="transition-all duration-300 focus:scale-105"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="endDate">Date de fin *</Label>
+            <Input 
+              id="endDate" 
+              name="endDate" 
+              type="date" 
+              value={formData.endDate} 
+              onChange={handleInputChange}
+              className="transition-all duration-300 focus:scale-105"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="grade">Note sur 20 *</Label>

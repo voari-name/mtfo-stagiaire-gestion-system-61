@@ -24,10 +24,10 @@ const Statistics = () => {
   ];
 
   const stats = [
-    { title: "Total des stagiaires", value: "156", change: "+12%" },
-    { title: "Stages en cours", value: "42", change: "+5%" },
-    { title: "Entreprises partenaires", value: "28", change: "+8%" },
-    { title: "Taux de réussite", value: "94%", change: "+2%" }
+    { title: "📋 Stagiaires", value: "156", change: "+12%" },
+    { title: "📊 Projets", value: "42", change: "+5%" },
+    { title: "📌 Évaluations", value: "28", change: "+8%" },
+    { title: "📌 Affectations", value: "94", change: "+2%" }
   ];
 
   return (

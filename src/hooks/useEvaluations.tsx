@@ -4,21 +4,8 @@ import { useToast } from "@/hooks/use-toast";
 import { EvaluationType } from "@/types/evaluations";
 import { generateEvaluationPDF } from "@/utils/evaluationPdfGenerator";
 
-// Sample data for evaluations without default values
-const initialEvaluations = [
-  {
-    id: 1,
-    firstName: "",
-    lastName: "",
-    startDate: "",
-    endDate: "",
-    grade: 0,
-    comment: ""
-  }
-];
-
 export const useEvaluations = () => {
-  const [evaluations, setEvaluations] = useState<EvaluationType[]>(initialEvaluations);
+  const [evaluations, setEvaluations] = useState<EvaluationType[]>([]);
   const [currentEvaluation, setCurrentEvaluation] = useState<EvaluationType | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
