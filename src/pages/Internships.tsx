@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -18,14 +19,14 @@ const InternsContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
+    photo: "",
     last_name: "",
     first_name: "",
     email: "",
     gender: "",
     start_date: "",
     end_date: "",
-    status: "début",
-    photo: ""
+    status: "en cours"
   });
   const { toast } = useToast();
 
@@ -55,22 +56,21 @@ const InternsContent = () => {
     }
 
     try {
-      // Add a default title since it's required by the database
       const internData = {
         ...formData,
-        title: "Stagiaire" // Default title
+        title: "Stagiaire"
       };
       
       await createIntern(internData);
       setFormData({
+        photo: "",
         last_name: "",
         first_name: "",
         email: "",
         gender: "",
         start_date: "",
         end_date: "",
-        status: "début",
-        photo: ""
+        status: "en cours"
       });
       setIsCreateDialogOpen(false);
       toast({
@@ -117,60 +117,66 @@ const InternsContent = () => {
             />
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button>Ajouter un stagiaire</Button>
+                <Button className="bg-blue-600 hover:bg-blue-700">Ajouter un stagiaire</Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Nouveau stagiaire</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-xl font-semibold text-blue-800">Nouveau stagiaire</DialogTitle>
+                  <DialogDescription className="text-gray-600">
                     Ajoutez un nouveau stagiaire en remplissant les informations ci-dessous.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="last_name">Nom *</Label>
+                <form onSubmit={handleSubmit} className="space-y-6 p-2">
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <Label htmlFor="photo" className="text-sm font-medium text-gray-700 mb-2 block">Photo</Label>
+                    <PhotoUpload 
+                      onPhotoChange={handlePhotoChange}
+                      currentPhoto={formData.photo}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="last_name" className="text-sm font-medium text-gray-700">Nom *</Label>
                       <Input
                         id="last_name"
                         name="last_name"
                         value={formData.last_name}
                         onChange={handleInputChange}
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="first_name">Prénom *</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="first_name" className="text-sm font-medium text-gray-700">Prénom *</Label>
                       <Input
                         id="first_name"
                         name="first_name"
                         value={formData.first_name}
                         onChange={handleInputChange}
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email *</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email *</Label>
                     <Input
                       id="email"
                       name="email"
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
+                      className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                       required
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="photo">Photo</Label>
-                    <PhotoUpload 
-                      onPhotoChange={handlePhotoChange}
-                      currentPhoto={formData.photo}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="gender">Genre</Label>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="gender" className="text-sm font-medium text-gray-700">Genre</Label>
                     <Select onValueChange={(value) => handleSelectChange("gender", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                         <SelectValue placeholder="Sélectionner le genre" />
                       </SelectTrigger>
                       <SelectContent>
@@ -179,48 +185,53 @@ const InternsContent = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="start_date">Date de début *</Label>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="start_date" className="text-sm font-medium text-gray-700">Date de début *</Label>
                       <Input
                         id="start_date"
                         name="start_date"
                         type="date"
                         value={formData.start_date}
                         onChange={handleInputChange}
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="end_date">Date de fin *</Label>
+                    <div className="space-y-2">
+                      <Label htmlFor="end_date" className="text-sm font-medium text-gray-700">Date de fin *</Label>
                       <Input
                         id="end_date"
                         name="end_date"
                         type="date"
                         value={formData.end_date}
                         onChange={handleInputChange}
+                        className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                         required
                       />
                     </div>
                   </div>
-                  <div>
-                    <Label htmlFor="status">Statut</Label>
-                    <Select onValueChange={(value) => handleSelectChange("status", value)} defaultValue="début">
-                      <SelectTrigger>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="status" className="text-sm font-medium text-gray-700">Statut</Label>
+                    <Select onValueChange={(value) => handleSelectChange("status", value)} defaultValue="en cours">
+                      <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
                         <SelectValue placeholder="Sélectionner le statut" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="début">Début</SelectItem>
                         <SelectItem value="en cours">En cours</SelectItem>
-                        <SelectItem value="fin">Fin</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex justify-end space-x-2">
-                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  
+                  <div className="flex justify-end space-x-3 pt-4 border-t">
+                    <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="px-6">
                       Annuler
                     </Button>
-                    <Button type="submit">Enregistrer</Button>
+                    <Button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6">
+                      Enregistrer
+                    </Button>
                   </div>
                 </form>
               </DialogContent>

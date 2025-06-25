@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 import { X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -25,7 +26,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     title: "",
     description: "",
     start_date: "",
-    end_date: ""
+    end_date: "",
+    status: "en cours"
   });
   const [selectedInterns, setSelectedInterns] = useState<any[]>([]);
   const { toast } = useToast();
@@ -48,7 +50,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         title: formData.title,
         description: formData.description,
         start_date: formData.start_date,
-        end_date: formData.end_date
+        end_date: formData.end_date,
+        status: formData.status
       };
 
       await onProjectCreated(newProject);
@@ -58,7 +61,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         description: "Le nouveau projet a été créé avec succès"
       });
 
-      setFormData({ title: "", description: "", start_date: "", end_date: "" });
+      setFormData({ title: "", description: "", start_date: "", end_date: "", status: "en cours" });
       setSelectedInterns([]);
       onOpenChange(false);
     } catch (error) {
@@ -88,113 +91,132 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] animate-scale-in">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto animate-scale-in">
         <DialogHeader>
-          <DialogTitle>Nouveau projet</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-xl font-semibold text-blue-800">Nouveau projet</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Créez un nouveau projet en remplissant les informations ci-dessous.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-sm font-medium text-gray-700">
                 Titre *
               </Label>
               <Input
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="col-span-3"
                 placeholder="Titre du projet"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
+            
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
                 Description
               </Label>
-              <Input
+              <Textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="col-span-3"
                 placeholder="Description du projet"
+                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
+                rows={4}
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="start_date" className="text-right">
-                Date début *
-              </Label>
-              <Input
-                id="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="end_date" className="text-right">
-                Date fin *
-              </Label>
-              <Input
-                id="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label className="text-right pt-2">
-                Stagiaires
-              </Label>
-              <div className="col-span-3 space-y-3">
-                {availableInterns.length > 0 && (
-                  <Select onValueChange={handleAddIntern}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ajouter un stagiaire" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableInterns.map(intern => (
-                        <SelectItem key={intern.id} value={intern.id}>
-                          {intern.first_name} {intern.last_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-                
-                {selectedInterns.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {selectedInterns.map(intern => (
-                      <Badge key={intern.id} variant="secondary" className="flex items-center gap-1">
-                        {intern.first_name} {intern.last_name}
-                        <X 
-                          className="h-3 w-3 cursor-pointer" 
-                          onClick={() => handleRemoveIntern(intern.id)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                
-                {availableInterns.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    Aucun stagiaire disponible. Ajoutez d'abord des stagiaires dans la section "Stagiaires".
-                  </p>
-                )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="start_date" className="text-sm font-medium text-gray-700">
+                  Date début *
+                </Label>
+                <Input
+                  id="start_date"
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="end_date" className="text-sm font-medium text-gray-700">
+                  Date fin *
+                </Label>
+                <Input
+                  id="end_date"
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
               </div>
             </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+                Statut
+              </Label>
+              <Select onValueChange={(value) => setFormData({ ...formData, status: value })} defaultValue="en cours">
+                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Sélectionner le statut" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="en cours">En cours</SelectItem>
+                  <SelectItem value="terminé">Terminé</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-gray-700">
+                Stagiaires
+              </Label>
+              {availableInterns.length > 0 && (
+                <Select onValueChange={handleAddIntern}>
+                  <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                    <SelectValue placeholder="Ajouter un stagiaire" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableInterns.map(intern => (
+                      <SelectItem key={intern.id} value={intern.id}>
+                        {intern.first_name} {intern.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              
+              {selectedInterns.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedInterns.map(intern => (
+                    <Badge key={intern.id} variant="secondary" className="flex items-center gap-1">
+                      {intern.first_name} {intern.last_name}
+                      <X 
+                        className="h-3 w-3 cursor-pointer" 
+                        onClick={() => handleRemoveIntern(intern.id)}
+                      />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              
+              {availableInterns.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Aucun stagiaire disponible. Ajoutez d'abord des stagiaires dans la section "Stagiaires".
+                </p>
+              )}
+            </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="pt-4 border-t">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="px-6">
               Annuler
             </Button>
-            <Button type="submit">Créer le projet</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6">Créer le projet</Button>
           </DialogFooter>
         </form>
       </DialogContent>

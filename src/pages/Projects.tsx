@@ -29,7 +29,6 @@ const Projects = () => {
 
   const handleEditProject = (project: ProjectWithDetails) => {
     setSelectedProject(project);
-    // Ici on pourrait ouvrir un dialog d'édition
     setIsDetailsOpen(true);
   };
 
@@ -55,6 +54,10 @@ const Projects = () => {
     );
   }
 
+  // Filter projects based on their actual status
+  const activeProjects = projects.filter(p => p.status === "en cours");
+  const completedProjects = projects.filter(p => p.status === "terminé");
+
   return (
     <MainLayout title="Gestion des projets" currentPage="projects">
       <div className="space-y-6">
@@ -76,33 +79,51 @@ const Projects = () => {
           </TabsList>
           
           <TabsContent value="all" className="space-y-6">
-            <ProjectsList 
-              projects={projects} 
-              calculateProgress={calculateProgress}
-              onViewDetails={handleViewDetails}
-              onDeleteProject={deleteProject}
-              onEditProject={handleEditProject}
-            />
+            {projects.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Aucun projet trouvé. Créez votre premier projet !</p>
+              </div>
+            ) : (
+              <ProjectsList 
+                projects={projects} 
+                calculateProgress={calculateProgress}
+                onViewDetails={handleViewDetails}
+                onDeleteProject={deleteProject}
+                onEditProject={handleEditProject}
+              />
+            )}
           </TabsContent>
           
           <TabsContent value="active">
-            <ProjectsList 
-              projects={projects.filter(p => p.interns.some(i => i.status === "en cours"))} 
-              calculateProgress={calculateProgress}
-              onViewDetails={handleViewDetails}
-              onDeleteProject={deleteProject}
-              onEditProject={handleEditProject}
-            />
+            {activeProjects.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Aucun projet en cours.</p>
+              </div>
+            ) : (
+              <ProjectsList 
+                projects={activeProjects} 
+                calculateProgress={calculateProgress}
+                onViewDetails={handleViewDetails}
+                onDeleteProject={deleteProject}
+                onEditProject={handleEditProject}
+              />
+            )}
           </TabsContent>
           
           <TabsContent value="completed">
-            <ProjectsList 
-              projects={projects.filter(p => p.interns.every(i => i.status === "fin"))} 
-              calculateProgress={calculateProgress}
-              onViewDetails={handleViewDetails}
-              onDeleteProject={deleteProject}
-              onEditProject={handleEditProject}
-            />
+            {completedProjects.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Aucun projet terminé.</p>
+              </div>
+            ) : (
+              <ProjectsList 
+                projects={completedProjects} 
+                calculateProgress={calculateProgress}
+                onViewDetails={handleViewDetails}
+                onDeleteProject={deleteProject}
+                onEditProject={handleEditProject}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>
