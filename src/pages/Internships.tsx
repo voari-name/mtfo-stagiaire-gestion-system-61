@@ -11,19 +11,21 @@ import { useToast } from "@/hooks/use-toast";
 import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { PhotoUpload } from "@/components/ui/photo-upload";
 
 const InternsContent = () => {
   const { interns, createIntern, deleteIntern, updateIntern, loading } = useSupabaseInterns();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    first_name: "",
     last_name: "",
+    first_name: "",
     email: "",
     gender: "",
     start_date: "",
     end_date: "",
-    status: "début"
+    status: "début",
+    photo: ""
   });
   const { toast } = useToast();
 
@@ -34,6 +36,10 @@ const InternsContent = () => {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handlePhotoChange = (photo: string | null) => {
+    setFormData({ ...formData, photo: photo || "" });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,13 +63,14 @@ const InternsContent = () => {
       
       await createIntern(internData);
       setFormData({
-        first_name: "",
         last_name: "",
+        first_name: "",
         email: "",
         gender: "",
         start_date: "",
         end_date: "",
-        status: "début"
+        status: "début",
+        photo: ""
       });
       setIsCreateDialogOpen(false);
       toast({
@@ -122,21 +129,21 @@ const InternsContent = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="first_name">Prénom *</Label>
-                      <Input
-                        id="first_name"
-                        name="first_name"
-                        value={formData.first_name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div>
                       <Label htmlFor="last_name">Nom *</Label>
                       <Input
                         id="last_name"
                         name="last_name"
                         value={formData.last_name}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="first_name">Prénom *</Label>
+                      <Input
+                        id="first_name"
+                        name="first_name"
+                        value={formData.first_name}
                         onChange={handleInputChange}
                         required
                       />
@@ -151,6 +158,13 @@ const InternsContent = () => {
                       value={formData.email}
                       onChange={handleInputChange}
                       required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="photo">Photo</Label>
+                    <PhotoUpload 
+                      onPhotoChange={handlePhotoChange}
+                      currentPhoto={formData.photo}
                     />
                   </div>
                   <div>

@@ -3,9 +3,15 @@ import MainLayout from "@/components/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
+import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
+import { useEvaluations } from "@/hooks/useEvaluations";
 
 const Statistics = () => {
   const { translations } = useSettings();
+  const { interns } = useSupabaseInterns();
+  const { projects } = useSupabaseProjects();
+  const { evaluations } = useEvaluations();
 
   const internshipData = [
     { month: "Jan", count: 12 },
@@ -24,10 +30,10 @@ const Statistics = () => {
   ];
 
   const stats = [
-    { title: "📋 Stagiaires", value: "", change: "" },
-    { title: "📊 Projets", value: "", change: "" },
-    { title: "📌 Évaluations", value: "", change: "" },
-    { title: "📌 Affectations", value: "", change: "" }
+    { title: "📋 Stagiaires", value: interns.length.toString(), change: "" },
+    { title: "📊 Projets", value: projects.length.toString(), change: "" },
+    { title: "📌 Évaluations", value: evaluations.length.toString(), change: "" },
+    { title: "📌 Affectations", value: "0", change: "" }
   ];
 
   return (
