@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,13 @@ const InternsContent = () => {
     }
 
     try {
-      await createIntern(formData);
+      // Add a default title since it's required by the database
+      const internData = {
+        ...formData,
+        title: "Stagiaire" // Default title
+      };
+      
+      await createIntern(internData);
       setFormData({
         first_name: "",
         last_name: "",
