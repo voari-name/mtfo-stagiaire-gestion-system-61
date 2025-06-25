@@ -54,7 +54,7 @@ const Projects = () => {
     );
   }
 
-  // Filter projects based on their actual status
+  // Filter projects based on their status from the database
   const activeProjects = projects.filter(p => p.status === "en cours");
   const completedProjects = projects.filter(p => p.status === "terminé");
 

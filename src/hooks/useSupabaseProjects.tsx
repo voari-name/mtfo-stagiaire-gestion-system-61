@@ -15,6 +15,7 @@ export interface ProjectWithDetails extends Project {
   // Ajouter des propriétés pour la compatibilité avec les composants existants
   startDate: string;
   endDate: string;
+  status: string; // Add status property
 }
 
 export const useSupabaseProjects = () => {
