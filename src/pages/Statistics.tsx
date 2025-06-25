@@ -24,10 +24,10 @@ const Statistics = () => {
   ];
 
   const stats = [
-    { title: "📋 Stagiaires", value: "156", change: "+12%" },
-    { title: "📊 Projets", value: "42", change: "+5%" },
-    { title: "📌 Évaluations", value: "28", change: "+8%" },
-    { title: "📌 Affectations", value: "94", change: "+2%" }
+    { title: "📋 Stagiaires", value: "", change: "" },
+    { title: "📊 Projets", value: "", change: "" },
+    { title: "📌 Évaluations", value: "", change: "" },
+    { title: "📌 Affectations", value: "", change: "" }
   ];
 
   return (

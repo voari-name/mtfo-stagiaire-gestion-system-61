@@ -21,7 +21,6 @@ const InternsContent = () => {
     first_name: "",
     last_name: "",
     email: "",
-    title: "",
     gender: "",
     start_date: "",
     end_date: "",
@@ -41,7 +40,7 @@ const InternsContent = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.first_name || !formData.last_name || !formData.email || !formData.title || !formData.start_date || !formData.end_date) {
+    if (!formData.first_name || !formData.last_name || !formData.email || !formData.start_date || !formData.end_date) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires",
@@ -56,7 +55,6 @@ const InternsContent = () => {
         first_name: "",
         last_name: "",
         email: "",
-        title: "",
         gender: "",
         start_date: "",
         end_date: "",
@@ -151,16 +149,6 @@ const InternsContent = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="title">Titre du stage *</Label>
-                    <Input
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div>
                     <Label htmlFor="gender">Genre</Label>
                     <Select onValueChange={(value) => handleSelectChange("gender", value)}>
                       <SelectTrigger>
@@ -235,7 +223,6 @@ const InternsContent = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <p><strong>Titre:</strong> {intern.title}</p>
                   <p><strong>Période:</strong> {new Date(intern.start_date).toLocaleDateString()} - {new Date(intern.end_date).toLocaleDateString()}</p>
                   {intern.gender && <p><strong>Genre:</strong> {intern.gender}</p>}
                   <div className="flex justify-end space-x-2 mt-4">
