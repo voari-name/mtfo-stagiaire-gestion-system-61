@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,17 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { signIn, signUp, resetPassword } = useAuth();
+
+  // Vérifier si on arrive depuis la page de connexion pour ouvrir l'onglet reset
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('tab') === 'reset') {
+      setActiveTab('reset');
+    }
+  }, [location]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +123,7 @@ const Auth = () => {
             />
           </div>
           <div className="text-right">
-            <p className="text-sm font-semibold text-green-800">MTFoP</p>
+            <p className="text-sm font-semibold text-green-800">MTeFoP</p>
           </div>
         </div>
       </div>
@@ -179,9 +188,17 @@ const Auth = () => {
                     />
                   </div>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col space-y-2">
                   <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900" disabled={loading}>
                     {loading ? "Connexion..." : "Se connecter"}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    onClick={() => setActiveTab("reset")}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Mot de passe oublié?
                   </Button>
                 </CardFooter>
               </form>
@@ -250,9 +267,17 @@ const Auth = () => {
                     Entrez votre adresse email pour recevoir un lien de réinitialisation de mot de passe.
                   </p>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="flex flex-col space-y-2">
                   <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={loading}>
-                    {loading ? "Envoi..." : "Réinitialiser le mot de passe"}
+                    {loading ? "Envoi..." : "Envoyer le lien"}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="link" 
+                    onClick={() => setActiveTab("login")}
+                    className="text-gray-600 hover:text-gray-800"
+                  >
+                    Retour à la connexion
                   </Button>
                 </CardFooter>
               </form>

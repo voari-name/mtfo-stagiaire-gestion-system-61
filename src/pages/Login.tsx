@@ -32,6 +32,11 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    // Rediriger vers la page Auth avec l'onglet reset activé
+    navigate("/auth");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Banner MTFoP */}
@@ -94,12 +99,7 @@ const Login = () => {
                 />
               </div>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="dark:text-white">Mot de passe</Label>
-                  <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors dark:text-blue-400 dark:hover:text-blue-300">
-                    Mot de passe oublié?
-                  </a>
-                </div>
+                <Label htmlFor="password" className="dark:text-white">Mot de passe</Label>
                 <Input
                   id="password"
                   type="password"
@@ -116,9 +116,17 @@ const Login = () => {
                 </div>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col animate-fade-in" style={{animationDelay: '0.6s'}}>
+            <CardFooter className="flex flex-col space-y-4 animate-fade-in" style={{animationDelay: '0.6s'}}>
               <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900 hover-scale transition-all duration-300">
                 Se connecter
+              </Button>
+              <Button 
+                type="button" 
+                variant="link" 
+                onClick={handleForgotPassword}
+                className="text-blue-600 hover:text-blue-800 transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                Mot de passe oublié?
               </Button>
             </CardFooter>
           </form>
