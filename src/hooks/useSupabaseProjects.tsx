@@ -58,6 +58,22 @@ export const useSupabaseProjects = () => {
 
           if (tasksError) throw tasksError;
 
+          // Compute project status based on tasks or date
+          let computedStatus = "en cours";
+          if (tasks && tasks.length > 0) {
+            const completedTasks = tasks.filter(task => task.status === "completed").length;
+            if (completedTasks === tasks.length) {
+              computedStatus = "terminé";
+            }
+          } else {
+            // If no tasks, check if project end date has passed
+            const endDate = new Date(project.end_date);
+            const today = new Date();
+            if (endDate < today) {
+              computedStatus = "terminé";
+            }
+          }
+
           return {
             ...project,
             interns: projectInterns?.map(pi => pi.interns).filter(Boolean) || [],
@@ -65,7 +81,7 @@ export const useSupabaseProjects = () => {
             // Ajouter les propriétés de compatibilité
             startDate: project.start_date,
             endDate: project.end_date,
-            status: project.status || "en cours" // Map the status from database or default to "en cours"
+            status: computedStatus // Use computed status instead of accessing non-existent project.status
           };
         })
       );
