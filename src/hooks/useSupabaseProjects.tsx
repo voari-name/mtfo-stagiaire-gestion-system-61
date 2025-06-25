@@ -64,7 +64,8 @@ export const useSupabaseProjects = () => {
             tasks: tasks || [],
             // Ajouter les propriétés de compatibilité
             startDate: project.start_date,
-            endDate: project.end_date
+            endDate: project.end_date,
+            status: project.status || "en cours" // Map the status from database or default to "en cours"
           };
         })
       );
