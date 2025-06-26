@@ -11,14 +11,16 @@ interface Intern {
   start_date: string;
   end_date: string;
   gender?: string;
+  photo?: string;
 }
 
 interface InternsListProps {
   interns: Intern[];
   onDeleteIntern: (id: string) => void;
+  onEditIntern?: (intern: Intern) => void;
 }
 
-const InternsList: React.FC<InternsListProps> = ({ interns, onDeleteIntern }) => {
+const InternsList: React.FC<InternsListProps> = ({ interns, onDeleteIntern, onEditIntern }) => {
   if (interns.length === 0) {
     return (
       <div className="text-center py-8">
@@ -34,6 +36,7 @@ const InternsList: React.FC<InternsListProps> = ({ interns, onDeleteIntern }) =>
           key={intern.id} 
           intern={intern} 
           onDelete={onDeleteIntern} 
+          onEdit={onEditIntern}
         />
       ))}
     </div>

@@ -8,11 +8,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import InternForm from "@/components/internships/InternForm";
 import InternsList from "@/components/internships/InternsList";
+import EditInternDialog from "@/components/internships/EditInternDialog";
 
 const InternsContent = () => {
-  const { interns, createIntern, deleteIntern, loading } = useSupabaseInterns();
+  const { interns, createIntern, deleteIntern, updateIntern, loading } = useSupabaseInterns();
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedIntern, setSelectedIntern] = useState<any>(null);
   const { toast } = useToast();
 
   const handleCreateIntern = async (formData: any) => {
@@ -32,6 +35,28 @@ const InternsContent = () => {
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter le stagiaire",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEditIntern = (intern: any) => {
+    setSelectedIntern(intern);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateIntern = async (id: string, formData: any) => {
+    try {
+      await updateIntern(id, formData);
+      toast({
+        title: "Stagiaire modifié",
+        description: "Le stagiaire a été modifié avec succès"
+      });
+    } catch (error) {
+      console.error('Erreur lors de la modification du stagiaire:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le stagiaire",
         variant: "destructive"
       });
     }
@@ -76,6 +101,14 @@ const InternsContent = () => {
         <InternsList 
           interns={filteredInterns}
           onDeleteIntern={deleteIntern}
+          onEditIntern={handleEditIntern}
+        />
+
+        <EditInternDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          intern={selectedIntern}
+          onSubmit={handleUpdateIntern}
         />
       </div>
     </MainLayout>

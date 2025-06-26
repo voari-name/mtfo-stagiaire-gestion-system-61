@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 import { X } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -24,7 +23,6 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 }) => {
   const [formData, setFormData] = useState({
     title: "",
-    description: "",
     start_date: "",
     end_date: "",
     status: "en cours"
@@ -48,7 +46,6 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     try {
       const newProject = {
         title: formData.title,
-        description: formData.description,
         start_date: formData.start_date,
         end_date: formData.end_date,
         status: formData.status
@@ -61,7 +58,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         description: "Le nouveau projet a été créé avec succès"
       });
 
-      setFormData({ title: "", description: "", start_date: "", end_date: "", status: "en cours" });
+      setFormData({ title: "", start_date: "", end_date: "", status: "en cours" });
       setSelectedInterns([]);
       onOpenChange(false);
     } catch (error) {
@@ -111,20 +108,6 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                 placeholder="Titre du projet"
                 className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                 required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Description du projet"
-                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 min-h-[100px]"
-                rows={4}
               />
             </div>
             
