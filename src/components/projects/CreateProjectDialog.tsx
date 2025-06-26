@@ -24,8 +24,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   const [formData, setFormData] = useState({
     title: "",
     start_date: "",
-    end_date: "",
-    status: "en cours"
+    end_date: ""
   });
   const [selectedInterns, setSelectedInterns] = useState<any[]>([]);
   const { toast } = useToast();
@@ -47,8 +46,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
       const newProject = {
         title: formData.title,
         start_date: formData.start_date,
-        end_date: formData.end_date,
-        status: formData.status
+        end_date: formData.end_date
       };
 
       await onProjectCreated(newProject);
@@ -58,7 +56,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         description: "Le nouveau projet a été créé avec succès"
       });
 
-      setFormData({ title: "", start_date: "", end_date: "", status: "en cours" });
+      setFormData({ title: "", start_date: "", end_date: "" });
       setSelectedInterns([]);
       onOpenChange(false);
     } catch (error) {
@@ -138,21 +136,6 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
                   required
                 />
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-medium text-gray-700">
-                Statut
-              </Label>
-              <Select onValueChange={(value) => setFormData({ ...formData, status: value })} defaultValue="en cours">
-                <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                  <SelectValue placeholder="Sélectionner le statut" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en cours">En cours</SelectItem>
-                  <SelectItem value="terminé">Terminé</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
             
             <div className="space-y-3">

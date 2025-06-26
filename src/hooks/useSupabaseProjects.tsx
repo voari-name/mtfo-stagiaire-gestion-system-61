@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -105,9 +104,12 @@ export const useSupabaseProjects = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utilisateur non connecté');
 
+      // Remove status from projectData since it doesn't exist in the database
+      const { status, ...cleanProjectData } = projectData as any;
+
       const { data, error } = await supabase
         .from('projects')
-        .insert([{ ...projectData, user_id: user.id }])
+        .insert([{ ...cleanProjectData, user_id: user.id }])
         .select()
         .single();
 
