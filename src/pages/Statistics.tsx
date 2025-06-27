@@ -13,26 +13,58 @@ const Statistics = () => {
   const { projects } = useSupabaseProjects();
   const { evaluations } = useEvaluations();
 
-  const internshipData = [
-    { month: "Jan", count: 12 },
-    { month: "Fév", count: 18 },
-    { month: "Mar", count: 25 },
-    { month: "Avr", count: 22 },
-    { month: "Mai", count: 30 },
-    { month: "Jun", count: 35 }
-  ];
+  // Calculer les données basées sur les projets réels
+  const getProjectsByMonth = () => {
+    const monthCounts = {};
+    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    
+    // Initialiser tous les mois à 0
+    months.forEach(month => {
+      monthCounts[month] = 0;
+    });
 
-  const departmentData = [
-    { name: "IT", value: 45, color: "#0088FE" },
-    { name: "Engineering", value: 30, color: "#00C49F" },
-    { name: "Marketing", value: 15, color: "#FFBB28" },
-    { name: "HR", value: 10, color: "#FF8042" }
-  ];
+    // Compter les projets par mois de création
+    projects.forEach(project => {
+      const startDate = new Date(project.start_date);
+      const monthIndex = startDate.getMonth();
+      const monthName = months[monthIndex];
+      monthCounts[monthName]++;
+    });
+
+    return months.map(month => ({
+      month,
+      count: monthCounts[month]
+    }));
+  };
+
+  // Calculer la répartition des stagiaires par projet
+  const getInternDistribution = () => {
+    const distribution = {};
+    
+    projects.forEach(project => {
+      const internCount = project.interns ? project.interns.length : 0;
+      const key = internCount === 0 ? 'Sans stagiaire' : 
+                  internCount === 1 ? '1 stagiaire' :
+                  `${internCount} stagiaires`;
+      
+      distribution[key] = (distribution[key] || 0) + 1;
+    });
+
+    const colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+    return Object.entries(distribution).map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length]
+    }));
+  };
+
+  const internshipData = getProjectsByMonth();
+  const departmentData = getInternDistribution();
 
   const stats = [
     { title: "📋 Stagiaires", value: interns.length.toString(), change: "" },
-    { title: "📌 Évaluations", value: evaluations.length.toString(), change: "" },
-    { title: "📌 Affectations", value: "0", change: "" }
+    { title: "📊 Projets", value: projects.length.toString(), change: "" },
+    { title: "📌 Évaluations", value: evaluations.length.toString(), change: "" }
   ];
 
   return (
@@ -61,8 +93,8 @@ const Statistics = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="hover:shadow-lg transition-all duration-300">
             <CardHeader>
-              <CardTitle>Évolution des stages par mois</CardTitle>
-              <CardDescription>Nombre de stages par mois cette année</CardDescription>
+              <CardTitle>Évolution des projets par mois</CardTitle>
+              <CardDescription>Nombre de projets créés par mois</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -79,28 +111,34 @@ const Statistics = () => {
 
           <Card className="hover:shadow-lg transition-all duration-300">
             <CardHeader>
-              <CardTitle>Répartition par département</CardTitle>
-              <CardDescription>Distribution des stages par secteur</CardDescription>
+              <CardTitle>Répartition des projets</CardTitle>
+              <CardDescription>Distribution par nombre de stagiaires assignés</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={departmentData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {departmentData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
+                {departmentData.length > 0 ? (
+                  <PieChart>
+                    <Pie
+                      data={departmentData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {departmentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-500">Aucun projet créé pour le moment</p>
+                  </div>
+                )}
               </ResponsiveContainer>
             </CardContent>
           </Card>
