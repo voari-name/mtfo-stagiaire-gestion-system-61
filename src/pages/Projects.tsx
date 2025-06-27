@@ -2,41 +2,26 @@
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
-import ProjectsList from "@/components/projects/ProjectsList";
-import ProjectDetails from "@/components/projects/ProjectDetails";
-import { useSupabaseProjects, ProjectWithDetails } from "@/hooks/useSupabaseProjects";
+import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
 
 const Projects = () => {
-  const {
-    projects,
-    loading,
-    createProject,
-    deleteProject,
-    updateProject,
-    calculateProgress
-  } = useSupabaseProjects();
-
+  const { createProject } = useSupabaseProjects();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedProject, setSelectedProject] = useState<ProjectWithDetails | null>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [createdProject, setCreatedProject] = useState<any>(null);
 
-  const handleViewDetails = (project: ProjectWithDetails) => {
-    setSelectedProject(project);
-    setIsDetailsOpen(true);
-  };
-
-  const handleEditProject = (project: ProjectWithDetails) => {
-    // Pour l'instant, on ouvre juste les détails
-    handleViewDetails(project);
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed": return "bg-green-500";
-      case "in-progress": return "bg-blue-500";
-      case "not-started": return "bg-gray-300";
-      default: return "bg-gray-300";
+  const handleProjectCreated = async (projectData: any) => {
+    try {
+      const newProject = await createProject(projectData);
+      // Stocker le projet créé pour l'affichage
+      setCreatedProject({
+        ...projectData,
+        id: newProject?.id || Date.now().toString()
+      });
+    } catch (error) {
+      console.error('Erreur lors de la création du projet:', error);
     }
   };
 
@@ -53,18 +38,47 @@ const Projects = () => {
           </Button>
         </div>
 
-        {loading ? (
-          <div className="text-center py-12">
-            <p>Chargement des projets...</p>
-          </div>
-        ) : projects.length > 0 ? (
-          <ProjectsList
-            projects={projects}
-            calculateProgress={calculateProgress}
-            onViewDetails={handleViewDetails}
-            onDeleteProject={deleteProject}
-            onEditProject={handleEditProject}
-          />
+        {createdProject ? (
+          <Card className="max-w-2xl">
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-xl">{createdProject.title}</CardTitle>
+                <Badge variant="default" className="bg-blue-500">
+                  Nouveau projet
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Période</p>
+                  <p className="font-medium">
+                    Du {new Date(createdProject.start_date).toLocaleDateString('fr-FR')} au {new Date(createdProject.end_date).toLocaleDateString('fr-FR')}
+                  </p>
+                </div>
+                
+                {createdProject.selectedInterns && createdProject.selectedInterns.length > 0 && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Stagiaires assignés</p>
+                    <div className="space-y-2">
+                      {createdProject.selectedInterns.map((intern: any, index: number) => (
+                        <div key={index} className="flex items-center justify-between">
+                          <span className="text-sm">{intern.first_name} {intern.last_name}</span>
+                          <Badge variant="outline" className="border-blue-500 text-blue-700 bg-blue-50">
+                            Assigné
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-green-600 font-medium">✓ Projet créé avec succès</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
           <div className="text-center py-12">
             <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
@@ -75,9 +89,9 @@ const Projects = () => {
                 <line x1="16" y1="17" x2="8" y2="17"/>
                 <polyline points="10,9 9,9 8,9"/>
               </svg>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucun projet pour le moment</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Gestion des projets</h3>
               <p className="text-gray-500 mb-4">
-                Commencez par créer votre premier projet en utilisant le bouton "Nouveau projet".
+                Utilisez le bouton "Nouveau projet" pour créer votre projet. Les informations saisies s'afficheront ici.
               </p>
             </div>
           </div>
@@ -87,18 +101,8 @@ const Projects = () => {
       <CreateProjectDialog
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
-        onProjectCreated={createProject}
+        onProjectCreated={handleProjectCreated}
       />
-
-      {selectedProject && (
-        <ProjectDetails
-          project={selectedProject}
-          open={isDetailsOpen}
-          onOpenChange={setIsDetailsOpen}
-          getStatusColor={getStatusColor}
-          onEditProject={updateProject}
-        />
-      )}
     </MainLayout>
   );
 };
