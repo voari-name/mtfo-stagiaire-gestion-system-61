@@ -6,22 +6,66 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
 import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Projects = () => {
   const { createProject } = useSupabaseProjects();
+  const { toast } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [createdProject, setCreatedProject] = useState<any>(null);
 
   const handleProjectCreated = async (projectData: any) => {
     try {
-      const newProject = await createProject(projectData);
+      console.log('Données du projet à créer:', projectData);
+      
+      // Créer le projet dans la base de données
+      const newProject = await createProject({
+        title: projectData.title,
+        start_date: projectData.start_date,
+        end_date: projectData.end_date,
+        description: projectData.description || null
+      });
+
+      console.log('Projet créé:', newProject);
+
+      // Si des stagiaires sont sélectionnés, les assigner au projet
+      if (projectData.selectedInterns && projectData.selectedInterns.length > 0 && newProject) {
+        console.log('Assignation des stagiaires:', projectData.selectedInterns);
+        
+        for (const intern of projectData.selectedInterns) {
+          const { error: assignError } = await supabase
+            .from('project_interns')
+            .insert({
+              project_id: newProject.id,
+              intern_id: intern.id
+            });
+
+          if (assignError) {
+            console.error('Erreur lors de l\'assignation du stagiaire:', assignError);
+            throw assignError;
+          }
+        }
+      }
+
       // Stocker le projet créé pour l'affichage
       setCreatedProject({
         ...projectData,
         id: newProject?.id || Date.now().toString()
       });
+
+      toast({
+        title: "Projet créé avec succès",
+        description: `Le projet "${projectData.title}" a été créé et stocké dans la base de données.`,
+      });
+
     } catch (error) {
       console.error('Erreur lors de la création du projet:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le projet dans la base de données.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -74,7 +118,7 @@ const Projects = () => {
                 )}
                 
                 <div className="pt-4 border-t">
-                  <p className="text-sm text-green-600 font-medium">✓ Projet créé avec succès</p>
+                  <p className="text-sm text-green-600 font-medium">✓ Projet créé et stocké dans la base de données</p>
                 </div>
               </div>
             </CardContent>
@@ -91,7 +135,7 @@ const Projects = () => {
               </svg>
               <h3 className="text-lg font-semibold text-gray-700 mb-2">Gestion des projets</h3>
               <p className="text-gray-500 mb-4">
-                Utilisez le bouton "Nouveau projet" pour créer votre projet. Les informations saisies s'afficheront ici.
+                Utilisez le bouton "Nouveau projet" pour créer votre projet. Les données seront stockées dans la base de données et utilisées pour les statistiques.
               </p>
             </div>
           </div>
