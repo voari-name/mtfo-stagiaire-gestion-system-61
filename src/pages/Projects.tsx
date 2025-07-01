@@ -5,78 +5,21 @@ import { Button } from "@/components/ui/button";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
 import ProjectsList from "@/components/projects/ProjectsList";
 import ProjectDetails from "@/components/projects/ProjectDetails";
+import { ProjectsEmptyState } from "@/components/projects/ProjectsEmptyState";
+import { ProjectDeletionHandler } from "@/components/projects/ProjectDeletionHandler";
+import { useProjectCreationHandler } from "@/components/projects/ProjectCreationHandler";
 import { useSupabaseProjects, ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import { useProjects } from "@/hooks/useProjects";
-import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 const Projects = () => {
-  const { projects, loading, createProject, updateProject, deleteProject, refetch } = useSupabaseProjects();
+  const { projects, loading } = useSupabaseProjects();
   const { calculateProgress, getStatusColor } = useProjects();
-  const { toast } = useToast();
+  const { handleProjectCreated } = useProjectCreationHandler();
+  
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<ProjectWithDetails | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
-
-  const handleProjectCreated = async (projectData: any) => {
-    try {
-      console.log('Données du projet à créer:', projectData);
-      
-      const newProject = await createProject({
-        title: projectData.title,
-        start_date: projectData.start_date,
-        end_date: projectData.end_date,
-        description: projectData.description || null
-      });
-
-      console.log('Projet créé:', newProject);
-
-      if (projectData.selectedInterns && projectData.selectedInterns.length > 0 && newProject) {
-        console.log('Assignation des stagiaires:', projectData.selectedInterns);
-        
-        const { supabase } = await import('@/integrations/supabase/client');
-        
-        for (const intern of projectData.selectedInterns) {
-          const { error: assignError } = await supabase
-            .from('project_interns')
-            .insert({
-              project_id: newProject.id,
-              intern_id: intern.id
-            });
-
-          if (assignError) {
-            console.error('Erreur lors de l\'assignation du stagiaire:', assignError);
-            throw assignError;
-          }
-        }
-      }
-
-      await refetch();
-
-      toast({
-        title: "Projet créé avec succès",
-        description: `Le projet "${projectData.title}" a été créé et enregistré.`,
-      });
-
-    } catch (error) {
-      console.error('Erreur lors de la création du projet:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de créer le projet.",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleViewDetails = (project: ProjectWithDetails) => {
     setSelectedProject(project);
@@ -84,34 +27,13 @@ const Projects = () => {
   };
 
   const handleEditProject = async (project: ProjectWithDetails) => {
-    // Pour l'instant, on ouvre les détails - plus tard on peut ajouter un dialog d'édition
     handleViewDetails(project);
   };
 
-  const handleDeleteProject = async (projectId: string) => {
-    try {
-      await deleteProject(projectId);
-      setProjectToDelete(null);
-      
-      toast({
-        title: "Projet supprimé",
-        description: "Le projet a été supprimé avec succès.",
-        variant: "destructive"
-      });
-    } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le projet.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Transformer les projets pour le format attendu par ProjectsList
+  // Transform projects for ProjectsList
   const transformedProjects: ProjectWithDetails[] = projects.map(project => ({
     ...project,
-    tasks: [], // Pour l'instant, pas de tâches
+    tasks: [],
     startDate: project.start_date,
     endDate: project.end_date
   }));
@@ -148,21 +70,7 @@ const Projects = () => {
             onEditProject={handleEditProject}
           />
         ) : (
-          <div className="text-center py-12">
-            <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4 text-gray-400">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/>
-                <line x1="16" y1="13" x2="8" y2="13"/>
-                <line x1="16" y1="17" x2="8" y2="17"/>
-                <polyline points="10,9 9,9 8,9"/>
-              </svg>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucun projet</h3>
-              <p className="text-gray-500 mb-4">
-                Commencez par créer votre premier projet avec le bouton "Nouveau projet".
-              </p>
-            </div>
-          </div>
+          <ProjectsEmptyState />
         )}
       </div>
 
@@ -182,25 +90,10 @@ const Projects = () => {
         />
       )}
 
-      <AlertDialog open={!!projectToDelete} onOpenChange={() => setProjectToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => projectToDelete && handleDeleteProject(projectToDelete)}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ProjectDeletionHandler
+        projectToDelete={projectToDelete}
+        onOpenChange={() => setProjectToDelete(null)}
+      />
     </MainLayout>
   );
 };
