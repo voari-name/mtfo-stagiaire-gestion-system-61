@@ -1,17 +1,17 @@
-
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
+import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 
 interface ProjectDetailsProps {
-  project: any;
+  project: ProjectWithDetails;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   getStatusColor: (status: string) => string;
-  onEditProject?: (projectId: string, updates: any) => void;
+  onEditProject?: (project: ProjectWithDetails) => void;
 }
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ 
@@ -24,10 +24,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({
   if (!project) return null;
 
   const handleEdit = () => {
-    // Pour l'instant, on ferme juste le dialog
-    // Plus tard, on peut ouvrir un formulaire d'édition
     if (onEditProject) {
-      onEditProject(project.id, {});
+      onEditProject(project);
     }
     onOpenChange(false);
   };
