@@ -2,24 +2,36 @@
 import { useState } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
-import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
-import { supabase } from "@/integrations/supabase/client";
+import ProjectsList from "@/components/projects/ProjectsList";
+import ProjectDetails from "@/components/projects/ProjectDetails";
+import { useSupabaseProjects, ProjectWithDetails } from "@/hooks/useSupabaseProjects";
+import { useProjects } from "@/hooks/useProjects";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Projects = () => {
-  const { createProject } = useSupabaseProjects();
+  const { projects, loading, createProject, updateProject, deleteProject, refetch } = useSupabaseProjects();
+  const { calculateProgress, getStatusColor } = useProjects();
   const { toast } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [createdProject, setCreatedProject] = useState<any>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectWithDetails | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
 
   const handleProjectCreated = async (projectData: any) => {
     try {
       console.log('Données du projet à créer:', projectData);
       
-      // Créer le projet dans la base de données
       const newProject = await createProject({
         title: projectData.title,
         start_date: projectData.start_date,
@@ -29,9 +41,10 @@ const Projects = () => {
 
       console.log('Projet créé:', newProject);
 
-      // Si des stagiaires sont sélectionnés, les assigner au projet
       if (projectData.selectedInterns && projectData.selectedInterns.length > 0 && newProject) {
         console.log('Assignation des stagiaires:', projectData.selectedInterns);
+        
+        const { supabase } = await import('@/integrations/supabase/client');
         
         for (const intern of projectData.selectedInterns) {
           const { error: assignError } = await supabase
@@ -48,26 +61,70 @@ const Projects = () => {
         }
       }
 
-      // Stocker le projet créé pour l'affichage
-      setCreatedProject({
-        ...projectData,
-        id: newProject?.id || Date.now().toString()
-      });
+      await refetch();
 
       toast({
         title: "Projet créé avec succès",
-        description: `Le projet "${projectData.title}" a été créé et stocké dans la base de données.`,
+        description: `Le projet "${projectData.title}" a été créé et enregistré.`,
       });
 
     } catch (error) {
       console.error('Erreur lors de la création du projet:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer le projet dans la base de données.",
+        description: "Impossible de créer le projet.",
         variant: "destructive"
       });
     }
   };
+
+  const handleViewDetails = (project: ProjectWithDetails) => {
+    setSelectedProject(project);
+    setIsDetailsOpen(true);
+  };
+
+  const handleEditProject = async (project: ProjectWithDetails) => {
+    // Pour l'instant, on ouvre les détails - plus tard on peut ajouter un dialog d'édition
+    handleViewDetails(project);
+  };
+
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+      setProjectToDelete(null);
+      
+      toast({
+        title: "Projet supprimé",
+        description: "Le projet a été supprimé avec succès.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le projet.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Transformer les projets pour le format attendu par ProjectsList
+  const transformedProjects: ProjectWithDetails[] = projects.map(project => ({
+    ...project,
+    tasks: [], // Pour l'instant, pas de tâches
+    startDate: project.start_date,
+    endDate: project.end_date
+  }));
+
+  if (loading) {
+    return (
+      <MainLayout title="Gestion des projets" currentPage="projects">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title="Gestion des projets" currentPage="projects">
@@ -82,47 +139,14 @@ const Projects = () => {
           </Button>
         </div>
 
-        {createdProject ? (
-          <Card className="max-w-2xl">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-xl">{createdProject.title}</CardTitle>
-                <Badge variant="default" className="bg-blue-500">
-                  Nouveau projet
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Période</p>
-                  <p className="font-medium">
-                    Du {new Date(createdProject.start_date).toLocaleDateString('fr-FR')} au {new Date(createdProject.end_date).toLocaleDateString('fr-FR')}
-                  </p>
-                </div>
-                
-                {createdProject.selectedInterns && createdProject.selectedInterns.length > 0 && (
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">Stagiaires assignés</p>
-                    <div className="space-y-2">
-                      {createdProject.selectedInterns.map((intern: any, index: number) => (
-                        <div key={index} className="flex items-center justify-between">
-                          <span className="text-sm">{intern.first_name} {intern.last_name}</span>
-                          <Badge variant="outline" className="border-blue-500 text-blue-700 bg-blue-50">
-                            Assigné
-                          </Badge>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-green-600 font-medium">✓ Projet créé et stocké dans la base de données</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {transformedProjects.length > 0 ? (
+          <ProjectsList
+            projects={transformedProjects}
+            calculateProgress={calculateProgress}
+            onViewDetails={handleViewDetails}
+            onDeleteProject={(id) => setProjectToDelete(id)}
+            onEditProject={handleEditProject}
+          />
         ) : (
           <div className="text-center py-12">
             <div className="bg-gray-50 rounded-lg p-8 max-w-md mx-auto">
@@ -133,9 +157,9 @@ const Projects = () => {
                 <line x1="16" y1="17" x2="8" y2="17"/>
                 <polyline points="10,9 9,9 8,9"/>
               </svg>
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Gestion des projets</h3>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Aucun projet</h3>
               <p className="text-gray-500 mb-4">
-                Utilisez le bouton "Nouveau projet" pour créer votre projet. Les données seront stockées dans la base de données et utilisées pour les statistiques.
+                Commencez par créer votre premier projet avec le bouton "Nouveau projet".
               </p>
             </div>
           </div>
@@ -147,6 +171,36 @@ const Projects = () => {
         onOpenChange={setIsCreateDialogOpen}
         onProjectCreated={handleProjectCreated}
       />
+
+      {selectedProject && (
+        <ProjectDetails
+          project={selectedProject}
+          open={isDetailsOpen}
+          onOpenChange={setIsDetailsOpen}
+          getStatusColor={getStatusColor}
+          onEditProject={handleEditProject}
+        />
+      )}
+
+      <AlertDialog open={!!projectToDelete} onOpenChange={() => setProjectToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => projectToDelete && handleDeleteProject(projectToDelete)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 };
