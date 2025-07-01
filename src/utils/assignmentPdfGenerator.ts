@@ -2,14 +2,14 @@
 import jsPDF from 'jspdf';
 
 export interface AssignmentData {
-  id: number;
+  id: string;
   student: string;
   supervisor: string;
   company: string;
   department: string;
   status: string;
-  startDate: string;
-  endDate: string;
+  start_date: string;
+  end_date: string;
 }
 
 export const generateAssignmentPDF = (assignment: AssignmentData) => {
@@ -91,7 +91,7 @@ export const generateAssignmentPDF = (assignment: AssignmentData) => {
     `Département : ${assignment.department}`,
     `Sous la supervision de : ${assignment.supervisor}`,
     '',
-    `Période de stage : du ${new Date(assignment.startDate).toLocaleDateString('fr-FR')} au ${new Date(assignment.endDate).toLocaleDateString('fr-FR')}`,
+    `Période de stage : du ${new Date(assignment.start_date).toLocaleDateString('fr-FR')} au ${new Date(assignment.end_date).toLocaleDateString('fr-FR')}`,
     '',
     `Statut actuel : ${assignment.status === 'assigned' ? 'AFFECTÉ' : assignment.status === 'pending' ? 'EN ATTENTE' : 'TERMINÉ'}`,
     '',
