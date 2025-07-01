@@ -1,147 +1,153 @@
 
-import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
-type Intern = Database['public']['Tables']['interns']['Row'];
-type InternInsert = Database['public']['Tables']['interns']['Insert'];
+export interface Intern {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  title: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+  completion?: number;
+  gender?: string;
+  photo?: string;
+  created_at: string;
+  updated_at: string;
+  user_id?: string;
+}
 
 export const useSupabaseInterns = () => {
   const [interns, setInterns] = useState<Intern[]>([]);
   const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Récupérer tous les stagiaires
   const fetchInterns = async () => {
+    if (!user) {
+      setInterns([]);
+      setLoading(false);
+      return;
+    }
+
     try {
-      setLoading(true);
-      
       const { data, error } = await supabase
         .from('interns')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la récupération des stagiaires:', error);
+        return;
+      }
 
       setInterns(data || []);
     } catch (error) {
-      console.error('Erreur lors du chargement des stagiaires:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les stagiaires.",
-        variant: "destructive"
-      });
+      console.error('Erreur lors de la récupération des stagiaires:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Créer un nouveau stagiaire
-  const createIntern = async (internData: InternInsert) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Utilisateur non connecté');
+  const createIntern = async (internData: Omit<Intern, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
 
+    try {
       const { data, error } = await supabase
         .from('interns')
-        .insert([{ ...internData, user_id: user.id }])
+        .insert([
+          {
+            ...internData,
+            user_id: user.id
+          }
+        ])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la création du stagiaire:', error);
+        throw error;
+      }
 
-      toast({
-        title: "Stagiaire ajouté",
-        description: `${internData.first_name} ${internData.last_name} a été ajouté avec succès.`,
-      });
-
-      // Rafraîchir la liste
-      fetchInterns();
+      // Rafraîchir la liste des stagiaires
+      await fetchInterns();
       
       return data;
     } catch (error) {
       console.error('Erreur lors de la création du stagiaire:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'ajouter le stagiaire.",
-        variant: "destructive"
-      });
       throw error;
     }
   };
 
-  // Supprimer un stagiaire
-  const deleteIntern = async (internId: string) => {
+  const updateIntern = async (id: string, updates: Partial<Intern>) => {
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('interns')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour du stagiaire:', error);
+        throw error;
+      }
+
+      // Rafraîchir la liste des stagiaires
+      await fetchInterns();
+      
+      return data;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du stagiaire:', error);
+      throw error;
+    }
+  };
+
+  const deleteIntern = async (id: string) => {
+    if (!user) {
+      throw new Error('Utilisateur non connecté');
+    }
+
     try {
       const { error } = await supabase
         .from('interns')
         .delete()
-        .eq('id', internId);
+        .eq('id', id)
+        .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la suppression du stagiaire:', error);
+        throw error;
+      }
 
-      toast({
-        title: "Stagiaire supprimé",
-        description: "Le stagiaire a été supprimé avec succès.",
-        variant: "destructive"
-      });
-
-      // Rafraîchir la liste
-      fetchInterns();
+      // Rafraîchir la liste des stagiaires
+      await fetchInterns();
     } catch (error) {
       console.error('Erreur lors de la suppression du stagiaire:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer le stagiaire.",
-        variant: "destructive"
-      });
+      throw error;
     }
-  };
-
-  // Mettre à jour un stagiaire
-  const updateIntern = async (internId: string, updates: Partial<InternInsert>) => {
-    try {
-      const { error } = await supabase
-        .from('interns')
-        .update(updates)
-        .eq('id', internId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Stagiaire modifié",
-        description: "Le stagiaire a été modifié avec succès.",
-      });
-
-      // Rafraîchir la liste
-      fetchInterns();
-    } catch (error) {
-      console.error('Erreur lors de la modification du stagiaire:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de modifier le stagiaire.",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Récupérer les stagiaires disponibles pour assignation
-  const getAvailableInterns = () => {
-    return interns.filter(intern => intern.status === 'en cours');
   };
 
   useEffect(() => {
     fetchInterns();
-  }, []);
+  }, [user]);
 
   return {
     interns,
     loading,
     createIntern,
-    deleteIntern,
     updateIntern,
-    getAvailableInterns,
-    refreshInterns: fetchInterns
+    deleteIntern,
+    refetch: fetchInterns
   };
 };

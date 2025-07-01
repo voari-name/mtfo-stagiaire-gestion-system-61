@@ -6,30 +6,38 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signIn } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
-    // Check credentials (hardcoded as requested)
-    if (email === "olivierrahajaniaina9@gmail.com" && password === "Rakotosia11") {
+    setLoading(true);
+    
+    const { error } = await signIn(email, password);
+    
+    if (error) {
+      toast({
+        title: "Erreur de connexion",
+        description: error.message === "Invalid login credentials" 
+          ? "Email ou mot de passe incorrect" 
+          : error.message,
+        variant: "destructive"
+      });
+    } else {
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur la plateforme de gestion",
       });
-      navigate("/profile"); // Redirection vers la page Profil
-    } else if (email !== "olivierrahajaniaina9@gmail.com") {
-      setError("Email incorrect");
-    } else {
-      setError("Mot de passe incorrect");
+      navigate("/profile");
     }
+    setLoading(false);
   };
 
   const handleForgotPassword = () => {
@@ -110,15 +118,14 @@ const Login = () => {
                   className="transition-all duration-300 focus:scale-105 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
                 />
               </div>
-              {error && (
-                <div className="bg-red-50 text-red-700 px-4 py-2 rounded-md text-sm animate-fade-in dark:bg-red-900/20 dark:text-red-400">
-                  {error}
-                </div>
-              )}
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 animate-fade-in" style={{animationDelay: '0.6s'}}>
-              <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900 hover-scale transition-all duration-300">
-                Se connecter
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-800 hover:bg-blue-900 hover-scale transition-all duration-300"
+                disabled={loading}
+              >
+                {loading ? "Connexion..." : "Se connecter"}
               </Button>
               <Button 
                 type="button" 
