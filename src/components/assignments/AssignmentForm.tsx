@@ -6,22 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-
-interface Assignment {
-  id: number;
-  student: string;
-  supervisor: string;
-  company: string;
-  department: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-}
+import { Assignment } from "@/hooks/useSupabaseAssignments";
 
 interface AssignmentFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (assignment: Assignment) => void;
+  onSave: (assignment: Omit<Assignment, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => void;
   assignment?: Assignment;
 }
 
@@ -32,8 +22,8 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
     company: assignment?.company || "",
     department: assignment?.department || "",
     status: assignment?.status || "",
-    startDate: assignment?.startDate || "",
-    endDate: assignment?.endDate || ""
+    start_date: assignment?.start_date || "",
+    end_date: assignment?.end_date || ""
   });
   const { toast } = useToast();
 
@@ -56,18 +46,8 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
       return;
     }
 
-    const newAssignment: Assignment = {
-      id: assignment?.id || Date.now(),
-      ...formData
-    };
-
-    onSave(newAssignment);
+    onSave(formData);
     onClose();
-    
-    toast({
-      title: assignment ? "Affectation modifiée" : "Affectation créée",
-      description: `L'affectation de ${formData.student} a été ${assignment ? "modifiée" : "créée"} avec succès.`,
-    });
   };
 
   const handleCancel = () => {
@@ -77,8 +57,8 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
       company: "",
       department: "",
       status: "",
-      startDate: "",
-      endDate: ""
+      start_date: "",
+      end_date: ""
     });
     onClose();
   };
@@ -161,22 +141,22 @@ export const AssignmentForm = ({ isOpen, onClose, onSave, assignment }: Assignme
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Date de début</Label>
+              <Label htmlFor="start_date">Date de début</Label>
               <Input 
-                id="startDate" 
-                name="startDate" 
+                id="start_date" 
+                name="start_date" 
                 type="date" 
-                value={formData.startDate} 
+                value={formData.start_date} 
                 onChange={handleInputChange} 
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">Date de fin</Label>
+              <Label htmlFor="end_date">Date de fin</Label>
               <Input 
-                id="endDate" 
-                name="endDate" 
+                id="end_date" 
+                name="end_date" 
                 type="date" 
-                value={formData.endDate} 
+                value={formData.end_date} 
                 onChange={handleInputChange} 
               />
             </div>

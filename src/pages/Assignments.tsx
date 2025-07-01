@@ -9,25 +9,15 @@ import { AssignmentForm } from "@/components/assignments/AssignmentForm";
 import { Edit, Download, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateAssignmentPDF } from "@/utils/assignmentPdfGenerator";
-
-interface Assignment {
-  id: number;
-  student: string;
-  supervisor: string;
-  company: string;
-  department: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-}
+import { useSupabaseAssignments, Assignment } from "@/hooks/useSupabaseAssignments";
 
 const Assignments = () => {
   const { translations } = useSettings();
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | undefined>();
-
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  
+  const { assignments, loading, createAssignment, updateAssignment, deleteAssignment } = useSupabaseAssignments();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -57,13 +47,21 @@ const Assignments = () => {
     setIsFormOpen(true);
   };
 
-  const handleDeleteAssignment = (id: number) => {
-    setAssignments(assignments.filter(assignment => assignment.id !== id));
-    toast({
-      title: "Affectation supprimée",
-      description: "L'affectation a été supprimée avec succès.",
-      variant: "destructive"
-    });
+  const handleDeleteAssignment = async (id: string) => {
+    try {
+      await deleteAssignment(id);
+      toast({
+        title: "Affectation supprimée",
+        description: "L'affectation a été supprimée avec succès.",
+        variant: "destructive"
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la suppression.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDownloadPDF = (assignment: Assignment) => {
@@ -82,13 +80,37 @@ const Assignments = () => {
     }
   };
 
-  const handleSaveAssignment = (assignment: Assignment) => {
-    if (editingAssignment) {
-      setAssignments(assignments.map(a => a.id === assignment.id ? assignment : a));
-    } else {
-      setAssignments([...assignments, assignment]);
+  const handleSaveAssignment = async (assignmentData: Omit<Assignment, 'id' | 'created_at' | 'updated_at' | 'user_id'>) => {
+    try {
+      if (editingAssignment) {
+        await updateAssignment(editingAssignment.id, assignmentData);
+        toast({
+          title: "Affectation modifiée",
+          description: `L'affectation de ${assignmentData.student} a été modifiée avec succès.`,
+        });
+      } else {
+        await createAssignment(assignmentData);
+        toast({
+          title: "Affectation créée",
+          description: `L'affectation de ${assignmentData.student} a été créée avec succès.`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de l'enregistrement.",
+        variant: "destructive"
+      });
     }
   };
+
+  if (loading) {
+    return (
+      <MainLayout title={translations["Affectations"]} currentPage="assignments">
+        <div>Chargement...</div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout title={translations["Affectations"]} currentPage="assignments">
@@ -129,7 +151,7 @@ const Assignments = () => {
                     </div>
                     <div>
                       <span className="font-medium">Période: </span>
-                      {assignment.startDate} - {assignment.endDate}
+                      {new Date(assignment.start_date).toLocaleDateString('fr-FR')} - {new Date(assignment.end_date).toLocaleDateString('fr-FR')}
                     </div>
                   </div>
                   <div className="flex gap-2">

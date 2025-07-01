@@ -5,12 +5,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useSettings } from "@/contexts/SettingsContext";
 import { useSupabaseInterns } from "@/hooks/useSupabaseInterns";
 import { useSupabaseProjects } from "@/hooks/useSupabaseProjects";
+import { useSupabaseAssignments } from "@/hooks/useSupabaseAssignments";
 import { useEvaluations } from "@/hooks/useEvaluations";
 
 const Statistics = () => {
   const { translations } = useSettings();
   const { interns } = useSupabaseInterns();
   const { projects } = useSupabaseProjects();
+  const { assignments } = useSupabaseAssignments();
   const { evaluations } = useEvaluations();
 
   // Calculer les données basées sur les projets réels
@@ -64,7 +66,8 @@ const Statistics = () => {
   const stats = [
     { title: "📋 Stagiaires", value: interns.length.toString(), change: "" },
     { title: "📊 Projets", value: projects.length.toString(), change: "" },
-    { title: "📌 Évaluations", value: evaluations.length.toString(), change: "" }
+    { title: "📌 Évaluations", value: evaluations.length.toString(), change: "" },
+    { title: "📋 Affectations", value: assignments.length.toString(), change: "" }
   ];
 
   return (
@@ -73,7 +76,7 @@ const Statistics = () => {
         <h1 className="text-2xl font-bold text-blue-800">{translations["Tableau de bord statistiques"]}</h1>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map((stat, index) => (
             <Card key={index} className="hover:shadow-lg transition-all duration-300">
               <CardHeader className="pb-2">
