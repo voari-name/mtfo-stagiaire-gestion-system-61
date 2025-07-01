@@ -36,7 +36,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <div>
             <p className="text-sm text-muted-foreground">Période</p>
             <p className="font-medium">
-              {new Date(project.startDate).toLocaleDateString('fr-FR')} au {new Date(project.endDate).toLocaleDateString('fr-FR')}
+              {new Date(project.start_date).toLocaleDateString('fr-FR')} au {new Date(project.end_date).toLocaleDateString('fr-FR')}
             </p>
           </div>
           

@@ -15,6 +15,12 @@ export interface Project {
   interns?: any[];
 }
 
+export interface ProjectWithDetails extends Project {
+  tasks: any[];
+  startDate: string;
+  endDate: string;
+}
+
 export const useSupabaseProjects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
