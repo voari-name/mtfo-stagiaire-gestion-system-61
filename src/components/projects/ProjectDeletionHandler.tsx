@@ -15,18 +15,27 @@ import {
 interface ProjectDeletionHandlerProps {
   projectToDelete: string | null;
   onOpenChange: () => void;
+  onDelete?: (projectId: string) => void;
 }
 
 export const ProjectDeletionHandler: React.FC<ProjectDeletionHandlerProps> = ({
   projectToDelete,
-  onOpenChange
+  onOpenChange,
+  onDelete
 }) => {
   const { deleteProject } = useSupabaseProjects();
   const { toast } = useToast();
 
   const handleDeleteProject = async (projectId: string) => {
     try {
-      await deleteProject(projectId);
+      if (onDelete) {
+        // Suppression locale pour les projets non sauvegardés en base
+        onDelete(projectId);
+      } else {
+        // Suppression en base de données
+        await deleteProject(projectId);
+      }
+      
       onOpenChange();
       
       toast({
