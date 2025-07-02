@@ -45,9 +45,9 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     }
   }, [initialData]);
 
-  // Auto-submit when all required fields are filled
+  // Auto-submit when all required fields are filled and at least one intern is selected
   useEffect(() => {
-    if (formData.title && formData.start_date && formData.end_date) {
+    if (formData.title && formData.start_date && formData.end_date && selectedInterns.length > 0) {
       const projectData = {
         ...formData,
         selectedInterns
@@ -94,7 +94,17 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   const handleAddIntern = (internId: string) => {
     const intern = interns.find(i => i.id === internId);
     if (intern && !selectedInterns.find(i => i.id === intern.id)) {
-      setSelectedInterns([...selectedInterns, intern]);
+      const newSelectedInterns = [...selectedInterns, intern];
+      setSelectedInterns(newSelectedInterns);
+      
+      // Auto-submit si tous les champs requis sont remplis
+      if (formData.title && formData.start_date && formData.end_date) {
+        const projectData = {
+          ...formData,
+          selectedInterns: newSelectedInterns
+        };
+        onProjectCreated(projectData);
+      }
     }
   };
 

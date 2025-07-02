@@ -5,6 +5,7 @@ import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
 import { ProjectsEmptyState } from "@/components/projects/ProjectsEmptyState";
 import { ProjectDeletionHandler } from "@/components/projects/ProjectDeletionHandler";
 import { useProjectCreationHandler } from "@/components/projects/ProjectCreationHandler";
+import { PendingProjectDisplay } from "@/components/projects/PendingProjectDisplay";
 import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -116,17 +117,13 @@ export const ProjectManager = () => {
         </div>
       )}
 
-      {/* Bouton d'enregistrement pour les données en attente */}
+      {/* Affichage des données en attente */}
       {pendingProject && !showForm && (
-        <div className="flex justify-center">
-          <Button 
-            onClick={editingProject ? handleSaveEditedProject : handleSaveProject}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
-        </div>
+        <PendingProjectDisplay
+          projectData={pendingProject}
+          onSave={editingProject ? handleSaveEditedProject : handleSaveProject}
+          isEditing={!!editingProject}
+        />
       )}
 
       {/* Affichage des projets sauvegardés */}
