@@ -18,6 +18,7 @@ const Projects = () => {
   const { calculateProgress, getStatusColor } = useProjects();
   const { handleProjectCreated } = useProjectCreationHandler();
   
+  const [showForm, setShowForm] = useState(false);
   const [pendingProject, setPendingProject] = useState<any>(null);
   const [savedProjects, setSavedProjects] = useState<ProjectWithDetails[]>([]);
   const [editingProject, setEditingProject] = useState<ProjectWithDetails | null>(null);
@@ -26,6 +27,7 @@ const Projects = () => {
   const handleProjectFormSubmit = async (projectData: any) => {
     // Stocker les données en attente sans les afficher
     setPendingProject(projectData);
+    setShowForm(false);
   };
 
   const handleSaveProject = async () => {
@@ -60,6 +62,7 @@ const Projects = () => {
       description: project.description,
       selectedInterns: project.interns || []
     });
+    setShowForm(true);
   };
 
   const handleSaveEditedProject = async () => {
@@ -74,11 +77,18 @@ const Projects = () => {
       );
       setEditingProject(null);
       setPendingProject(null);
+      setShowForm(false);
     }
   };
 
   const handleDeleteProject = (projectId: string) => {
     setSavedProjects(prev => prev.filter(p => p.id !== projectId));
+  };
+
+  const handleNewProject = () => {
+    setEditingProject(null);
+    setPendingProject(null);
+    setShowForm(true);
   };
 
   if (loading) {
@@ -96,7 +106,10 @@ const Projects = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Projets</h2>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={handleNewProject}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
               <path d="M5 12h14" /><path d="M12 5v14" />
             </svg>
@@ -104,22 +117,24 @@ const Projects = () => {
           </Button>
         </div>
 
-        {/* Formulaire automatiquement affiché */}
-        <div className="bg-white rounded-lg border p-6">
-          <h3 className="text-lg font-semibold mb-4">
-            {editingProject ? "Modifier le projet" : "Créer un nouveau projet"}
-          </h3>
-          <CreateProjectDialog
-            open={true}
-            onOpenChange={() => {}}
-            onProjectCreated={handleProjectFormSubmit}
-            editingProject={editingProject}
-            initialData={pendingProject}
-          />
-        </div>
+        {/* Formulaire conditionnel */}
+        {showForm && (
+          <div className="bg-white rounded-lg border p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              {editingProject ? "Modifier le projet" : "Créer un nouveau projet"}
+            </h3>
+            <CreateProjectDialog
+              open={true}
+              onOpenChange={() => setShowForm(false)}
+              onProjectCreated={handleProjectFormSubmit}
+              editingProject={editingProject}
+              initialData={pendingProject}
+            />
+          </div>
+        )}
 
         {/* Bouton d'enregistrement pour les données en attente */}
-        {pendingProject && (
+        {pendingProject && !showForm && (
           <div className="flex justify-center">
             <Button 
               onClick={editingProject ? handleSaveEditedProject : handleSaveProject}
@@ -217,7 +232,7 @@ const Projects = () => {
         )}
 
         {/* État vide si aucun projet sauvegardé */}
-        {savedProjects.length === 0 && !pendingProject && (
+        {savedProjects.length === 0 && !pendingProject && !showForm && (
           <ProjectsEmptyState />
         )}
       </div>
