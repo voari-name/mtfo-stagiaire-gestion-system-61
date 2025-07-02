@@ -45,6 +45,17 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     }
   }, [initialData]);
 
+  // Auto-submit when all required fields are filled
+  useEffect(() => {
+    if (formData.title && formData.start_date && formData.end_date) {
+      const projectData = {
+        ...formData,
+        selectedInterns
+      };
+      onProjectCreated(projectData);
+    }
+  }, [formData.title, formData.start_date, formData.end_date, selectedInterns, onProjectCreated]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -89,6 +100,16 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 
   const handleRemoveIntern = (internId: string) => {
     setSelectedInterns(selectedInterns.filter(i => i.id !== internId));
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      title: "",
+      start_date: "",
+      end_date: ""
+    });
+    setSelectedInterns([]);
+    onOpenChange(false);
   };
 
   const availableInterns = interns.filter(intern => 
@@ -181,9 +202,17 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
           )}
         </div>
       </div>
-      <div className="pt-4 border-t">
+      <div className="pt-4 border-t flex gap-3">
         <Button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6">
           {editingProject ? "Modifier le projet" : "Créer le projet"}
+        </Button>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={handleCancel}
+          className="px-6"
+        >
+          Annuler
         </Button>
       </div>
     </form>
