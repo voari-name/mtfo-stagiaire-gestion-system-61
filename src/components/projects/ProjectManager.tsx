@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import CreateProjectDialog from "@/components/projects/CreateProjectDialog";
@@ -6,6 +5,7 @@ import { ProjectsEmptyState } from "@/components/projects/ProjectsEmptyState";
 import { ProjectDeletionHandler } from "@/components/projects/ProjectDeletionHandler";
 import { useProjectCreationHandler } from "@/components/projects/ProjectCreationHandler";
 import { PendingProjectDisplay } from "@/components/projects/PendingProjectDisplay";
+import { ProjectSearchBar } from "@/components/projects/ProjectSearchBar";
 import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,16 @@ export const ProjectManager = () => {
   const [savedProjects, setSavedProjects] = useState<ProjectWithDetails[]>([]);
   const [editingProject, setEditingProject] = useState<ProjectWithDetails | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filtrer les projets selon le terme de recherche
+  const filteredProjects = savedProjects.filter(project =>
+    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.interns?.some(intern => 
+      `${intern.first_name} ${intern.last_name}`.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   const handleProjectFormSubmit = async (projectData: any) => {
     setPendingProject(projectData);
@@ -122,19 +132,29 @@ export const ProjectManager = () => {
     setShowForm(true);
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center gap-4">
         <h2 className="text-2xl font-bold">Projets</h2>
-        <Button 
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={handleNewProject}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-            <path d="M5 12h14" /><path d="M12 5v14" />
-          </svg>
-          Nouveau projet
-        </Button>
+        <div className="flex items-center gap-4 flex-1 justify-end">
+          <ProjectSearchBar 
+            onSearch={handleSearch}
+            placeholder="Rechercher un projet..."
+          />
+          <Button 
+            className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+            onClick={handleNewProject}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M5 12h14" /><path d="M12 5v14" />
+            </svg>
+            Nouveau projet
+          </Button>
+        </div>
       </div>
 
       {/* Formulaire conditionnel */}
@@ -165,9 +185,16 @@ export const ProjectManager = () => {
       {/* Affichage des projets sauvegardés */}
       {savedProjects.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-xl font-semibold">Projets enregistrés</h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-semibold">Projets enregistrés</h3>
+            {searchTerm && (
+              <p className="text-sm text-gray-500">
+                {filteredProjects.length} résultat{filteredProjects.length > 1 ? 's' : ''} pour "{searchTerm}"
+              </p>
+            )}
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {savedProjects.map((project) => (
+            {filteredProjects.map((project) => (
               <Card key={project.id} className="hover:shadow-md transition-shadow">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
@@ -251,6 +278,13 @@ export const ProjectManager = () => {
               </Card>
             ))}
           </div>
+          
+          {/* Message si aucun résultat de recherche */}
+          {searchTerm && filteredProjects.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Aucun projet trouvé pour "{searchTerm}"</p>
+            </div>
+          )}
         </div>
       )}
 
