@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { useSettings } from "@/contexts/SettingsContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 
 type MainLayoutProps = {
   children: ReactNode;
@@ -33,23 +34,25 @@ const MainLayout = ({
   };
 
   return (
-    <div className={`flex h-screen ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
-      {/* Sidebar */}
-      <Sidebar 
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        currentPage={currentPage}
-        onLogout={handleLogout}
-      />
+    <NotificationProvider>
+      <div className={`flex h-screen ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
+        {/* Sidebar */}
+        <Sidebar 
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          currentPage={currentPage}
+          onLogout={handleLogout}
+        />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header title={title} username={username} />
-        <main className={`flex-1 overflow-y-auto p-6 ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
-          {children}
-        </main>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Header title={title} username={username} />
+          <main className={`flex-1 overflow-y-auto p-6 ${darkMode ? 'bg-slate-900' : 'bg-gray-100'}`}>
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </NotificationProvider>
   );
 };
 

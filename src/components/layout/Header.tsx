@@ -1,6 +1,7 @@
 
 import React from "react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { NotificationBar } from "@/components/layout/NotificationBar";
 
 interface HeaderProps {
   title: string;
@@ -17,6 +18,9 @@ export const Header = ({ title, username = "RAHAJANIAINA Olivier" }: HeaderProps
       </div>
       
       <div className="flex items-center space-x-4">
+        {/* Barre de notification */}
+        <NotificationBar />
+        
         <div className="flex items-center space-x-3">
           <img
             src="/lovable-uploads/d23d8c4c-1324-4c58-9904-d37fd7d53be4.png"

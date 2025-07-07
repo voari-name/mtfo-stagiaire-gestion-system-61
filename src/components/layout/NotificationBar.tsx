@@ -1,82 +1,111 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  time: string;
-  read: boolean;
-}
+import { Bell, Check, X } from "lucide-react";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 export const NotificationBar = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      title: "Nouveau stagiaire",
-      message: "Jean Rakoto a été ajouté",
-      time: "Il y a 5 minutes",
-      read: false
-    },
-    {
-      id: 2,
-      title: "Évaluation créée",
-      message: "Évaluation de Marie Razafy créée",
-      time: "Il y a 1 heure",
-      read: false
-    }
-  ]);
-
+  const { notifications, markAsRead, clearNotifications } = useNotifications();
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAsRead = (id: number) => {
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    ));
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return '✅';
+      case 'error':
+        return '❌';
+      case 'warning':
+        return '⚠️';
+      default:
+        return '📢';
+    }
+  };
+
+  const getNotificationBgColor = (type: string, read: boolean) => {
+    if (read) return "bg-gray-50 border-gray-200";
+    
+    switch (type) {
+      case 'success':
+        return "bg-green-50 border-green-200";
+      case 'error':
+        return "bg-red-50 border-red-200";
+      case 'warning':
+        return "bg-yellow-50 border-yellow-200";
+      default:
+        return "bg-blue-50 border-blue-200";
+    }
   };
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" className="relative hover-scale transition-all duration-300">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-          </svg>
+          <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 animate-scale-in">
-              {unreadCount}
+              {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 animate-fade-in">
         <div className="space-y-4">
-          <h4 className="font-medium leading-none">Notifications</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium leading-none">Notifications</h4>
+            {notifications.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearNotifications}
+                className="h-8 px-2 text-xs"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Effacer tout
+              </Button>
+            )}
+          </div>
+          
           {notifications.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Aucune notification</p>
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Aucune notification
+            </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-96 overflow-y-auto">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-300 hover:bg-gray-50 ${
-                    !notification.read ? "bg-blue-50 border-blue-200" : "bg-white"
-                  }`}
-                  onClick={() => markAsRead(notification.id)}
+                  className={`p-3 rounded-lg border cursor-pointer transition-all duration-300 hover:bg-gray-50 ${getNotificationBgColor(notification.type, notification.read)}`}
+                  onClick={() => !notification.read && markAsRead(notification.id)}
                 >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{notification.title}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm">{getNotificationIcon(notification.type)}</span>
+                        <p className="font-medium text-sm">{notification.title}</p>
+                      </div>
                       <p className="text-sm text-muted-foreground">{notification.message}</p>
                       <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
                     </div>
-                    {!notification.read && (
-                      <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {!notification.read && (
+                        <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
+                      )}
+                      {!notification.read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markAsRead(notification.id);
+                          }}
+                          className="h-6 w-6 p-0"
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

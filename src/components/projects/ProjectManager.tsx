@@ -12,10 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Edit, Trash2, Save } from "lucide-react";
 import { useProjects } from "@/hooks/useProjects";
+import { useNotifications } from "@/contexts/NotificationContext";
 
 export const ProjectManager = () => {
   const { calculateProgress } = useProjects();
   const { handleProjectCreated } = useProjectCreationHandler();
+  const { addNotification } = useNotifications();
   
   const [showForm, setShowForm] = useState(false);
   const [pendingProject, setPendingProject] = useState<any>(null);
@@ -26,6 +28,12 @@ export const ProjectManager = () => {
   const handleProjectFormSubmit = async (projectData: any) => {
     setPendingProject(projectData);
     setShowForm(false);
+    
+    addNotification({
+      title: "Projet créé",
+      message: `Le projet "${projectData.title}" est prêt à être enregistré`,
+      type: "info"
+    });
   };
 
   const handleSaveProject = async () => {
@@ -46,6 +54,12 @@ export const ProjectManager = () => {
       
       setSavedProjects(prev => [...prev, newProject]);
       setPendingProject(null);
+      
+      addNotification({
+        title: "Projet enregistré",
+        message: `Le projet "${newProject.title}" a été enregistré avec succès`,
+        type: "success"
+      });
     }
   };
 
@@ -59,6 +73,12 @@ export const ProjectManager = () => {
       selectedInterns: project.interns || []
     });
     setShowForm(true);
+    
+    addNotification({
+      title: "Modification en cours",
+      message: `Modification du projet "${project.title}" en cours`,
+      type: "info"
+    });
   };
 
   const handleSaveEditedProject = async () => {
@@ -70,6 +90,13 @@ export const ProjectManager = () => {
             : p
         )
       );
+      
+      addNotification({
+        title: "Projet modifié",
+        message: `Le projet "${editingProject.title}" a été modifié avec succès`,
+        type: "success"
+      });
+      
       setEditingProject(null);
       setPendingProject(null);
       setShowForm(false);
@@ -77,7 +104,16 @@ export const ProjectManager = () => {
   };
 
   const handleDeleteProject = (projectId: string) => {
+    const deletedProject = savedProjects.find(p => p.id === projectId);
     setSavedProjects(prev => prev.filter(p => p.id !== projectId));
+    
+    if (deletedProject) {
+      addNotification({
+        title: "Projet supprimé",
+        message: `Le projet "${deletedProject.title}" a été supprimé`,
+        type: "warning"
+      });
+    }
   };
 
   const handleNewProject = () => {
@@ -197,6 +233,13 @@ export const ProjectManager = () => {
                       <Button
                         size="sm"
                         variant="default"
+                        onClick={() => {
+                          addNotification({
+                            title: "Projet enregistré",
+                            message: `Le projet "${project.title}" a été enregistré`,
+                            type: "success"
+                          });
+                        }}
                         className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
                       >
                         <Save className="h-3 w-3" />
