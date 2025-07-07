@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSettings } from "@/contexts/SettingsContext";
 import { AssignmentForm } from "@/components/assignments/AssignmentForm";
+import { AssignmentHeader } from "@/components/assignments/AssignmentHeader";
 import { Edit, Download, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateAssignmentPDF } from "@/utils/assignmentPdfGenerator";
@@ -16,8 +17,22 @@ const Assignments = () => {
   const { toast } = useToast();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | undefined>();
+  const [searchTerm, setSearchTerm] = useState("");
   
   const { assignments, loading, createAssignment, updateAssignment, deleteAssignment } = useSupabaseAssignments();
+
+  // Filtrer les affectations basé sur le terme de recherche
+  const filteredAssignments = assignments.filter(assignment => {
+    if (!searchTerm) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      assignment.student.toLowerCase().includes(searchLower) ||
+      assignment.company.toLowerCase().includes(searchLower) ||
+      assignment.department.toLowerCase().includes(searchLower) ||
+      assignment.supervisor.toLowerCase().includes(searchLower)
+    );
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -104,6 +119,10 @@ const Assignments = () => {
     }
   };
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+  };
+
   if (loading) {
     return (
       <MainLayout title={translations["Affectations"]} currentPage="assignments">
@@ -115,22 +134,25 @@ const Assignments = () => {
   return (
     <MainLayout title={translations["Affectations"]} currentPage="assignments">
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-blue-800">{translations["Gestion des affectations"]}</h1>
-          <Button className="bg-blue-800 hover:bg-blue-900" onClick={handleNewAssignment}>
-            Nouvelle affectation
-          </Button>
-        </div>
+        <AssignmentHeader 
+          onSearch={handleSearch}
+          onNewAssignment={handleNewAssignment}
+        />
 
-        {assignments.length === 0 ? (
+        {filteredAssignments.length === 0 ? (
           <Card className="text-center py-8">
             <CardContent>
-              <p className="text-gray-500">Aucune affectation trouvée. Créez une nouvelle affectation pour commencer.</p>
+              <p className="text-gray-500">
+                {searchTerm 
+                  ? `Aucune affectation trouvée pour "${searchTerm}".` 
+                  : "Aucune affectation trouvée. Créez une nouvelle affectation pour commencer."
+                }
+              </p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-4">
-            {assignments.map((assignment) => (
+            {filteredAssignments.map((assignment) => (
               <Card key={assignment.id} className="hover:shadow-lg transition-all duration-300">
                 <CardHeader>
                   <div className="flex justify-between items-start">
