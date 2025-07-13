@@ -2,7 +2,6 @@
 import React from "react";
 import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { ProjectForm } from "@/components/projects/ProjectForm";
-import { SavedProjectsList } from "@/components/projects/SavedProjectsList";
 import { ProjectsEmptyState } from "@/components/projects/ProjectsEmptyState";
 import { ProjectDeletionHandler } from "@/components/projects/ProjectDeletionHandler";
 import { ProjectsLoading } from "@/components/projects/ProjectsLoading";
@@ -52,15 +51,7 @@ export const ProjectManager = () => {
         } : null}
       />
 
-      <SavedProjectsList
-        projects={filteredProjects}
-        searchTerm={searchTerm}
-        onEditProject={handleEditProject}
-        onDeleteProject={(projectId) => setProjectToDelete(projectId)}
-        onNotify={addNotification}
-      />
-
-      {savedProjects.length === 0 && !showForm && (
+      {!showForm && (
         <ProjectsEmptyState />
       )}
 
