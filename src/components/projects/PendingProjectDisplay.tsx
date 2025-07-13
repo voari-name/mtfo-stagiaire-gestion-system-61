@@ -3,28 +3,34 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Save, Edit, Trash2 } from "lucide-react";
 
 interface PendingProjectDisplayProps {
   projectData: any;
   onSave: () => void;
   isEditing?: boolean;
+  showActions?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export const PendingProjectDisplay: React.FC<PendingProjectDisplayProps> = ({ 
   projectData, 
   onSave, 
-  isEditing = false 
+  isEditing = false,
+  showActions = false,
+  onEdit,
+  onDelete
 }) => {
   return (
     <Card className="border-blue-200 bg-blue-50">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg text-blue-800">
-            {isEditing ? "Modifications en cours" : "Nouveau projet en attente"}
+            {isEditing ? "Modifications en cours" : showActions ? "Projet enregistré" : "Nouveau projet en attente"}
           </CardTitle>
           <Badge variant="outline" className="border-blue-300 text-blue-700">
-            En attente
+            {showActions ? "Enregistré" : "En attente"}
           </Badge>
         </div>
       </CardHeader>
@@ -62,14 +68,35 @@ export const PendingProjectDisplay: React.FC<PendingProjectDisplayProps> = ({
           </div>
         )}
         
-        <div className="flex justify-center pt-4">
-          <Button 
-            onClick={onSave}
-            className="bg-green-600 hover:bg-green-700 px-6"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            {isEditing ? "Confirmer les modifications" : "Enregistrer le projet"}
-          </Button>
+        <div className="flex justify-center gap-3 pt-4">
+          {showActions ? (
+            <>
+              <Button 
+                onClick={onEdit}
+                variant="outline"
+                className="border-blue-300 text-blue-700 hover:bg-blue-100 px-6"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Modifier
+              </Button>
+              <Button 
+                onClick={onDelete}
+                variant="destructive"
+                className="px-6"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Supprimer
+              </Button>
+            </>
+          ) : (
+            <Button 
+              onClick={onSave}
+              className="bg-green-600 hover:bg-green-700 px-6"
+            >
+              <Save className="mr-2 h-4 w-4" />
+              {isEditing ? "Confirmer les modifications" : "Enregistrer le projet"}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
