@@ -1,19 +1,26 @@
 
-import { useState } from "react";
-import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
+import { useState, useEffect } from "react";
+import { useSupabaseProjects, ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import { useProjectCreationHandler } from "@/components/projects/ProjectCreationHandler";
 import { useNotifications } from "@/contexts/NotificationContext";
 
 export const useProjectManager = () => {
-  const { handleProjectCreated } = useProjectCreationHandler();
+  const { projects, loading, createProject, updateProject, deleteProject } = useSupabaseProjects();
   const { addNotification } = useNotifications();
   
   const [showForm, setShowForm] = useState(false);
-  const [pendingProject, setPendingProject] = useState<any>(null);
-  const [savedProjects, setSavedProjects] = useState<ProjectWithDetails[]>([]);
   const [editingProject, setEditingProject] = useState<ProjectWithDetails | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Utiliser les projets de Supabase directement
+  const savedProjects = projects.map(project => ({
+    ...project,
+    tasks: [],
+    startDate: project.start_date,
+    endDate: project.end_date,
+    interns: project.interns || []
+  }));
 
   const filteredProjects = savedProjects.filter(project =>
     project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -24,52 +31,49 @@ export const useProjectManager = () => {
   );
 
   const handleProjectFormSubmit = async (projectData: any) => {
-    setPendingProject(projectData);
-    setShowForm(false);
-    
-    addNotification({
-      title: "Projet créé",
-      message: `Le projet "${projectData.title}" est prêt à être enregistré`,
-      type: "info"
-    });
-  };
+    try {
+      // Créer le projet directement en base de données
+      const newProject = await createProject({
+        title: projectData.title,
+        start_date: projectData.start_date,
+        end_date: projectData.end_date,
+        description: projectData.description || null
+      });
 
-  const handleSaveProject = async () => {
-    if (pendingProject) {
-      await handleProjectCreated(pendingProject);
-      
-      const newProject: ProjectWithDetails = {
-        ...pendingProject,
-        id: Date.now().toString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        user_id: '',
-        tasks: [],
-        startDate: pendingProject.start_date,
-        endDate: pendingProject.end_date,
-        interns: pendingProject.selectedInterns || []
-      };
-      
-      setSavedProjects(prev => [...prev, newProject]);
-      setPendingProject(null);
+      // Assigner les stagiaires si il y en a
+      if (projectData.selectedInterns && projectData.selectedInterns.length > 0 && newProject) {
+        const { supabase } = await import('@/integrations/supabase/client');
+        
+        for (const intern of projectData.selectedInterns) {
+          await supabase
+            .from('project_interns')
+            .insert({
+              project_id: newProject.id,
+              intern_id: intern.id
+            });
+        }
+      }
+
+      setShowForm(false);
       
       addNotification({
-        title: "Projet enregistré",
-        message: `Le projet "${newProject.title}" a été enregistré avec succès`,
+        title: "Projet créé",
+        message: `Le projet "${projectData.title}" a été créé et enregistré avec succès`,
         type: "success"
+      });
+
+    } catch (error) {
+      console.error('Erreur lors de la création du projet:', error);
+      addNotification({
+        title: "Erreur",
+        message: "Impossible de créer le projet",
+        type: "error"
       });
     }
   };
 
   const handleEditProject = (project: ProjectWithDetails) => {
     setEditingProject(project);
-    setPendingProject({
-      title: project.title,
-      start_date: project.start_date,
-      end_date: project.end_date,
-      description: project.description,
-      selectedInterns: project.interns || []
-    });
     setShowForm(true);
     
     addNotification({
@@ -79,44 +83,78 @@ export const useProjectManager = () => {
     });
   };
 
-  const handleSaveEditedProject = async () => {
-    if (editingProject && pendingProject) {
-      setSavedProjects(prev => 
-        prev.map(p => 
-          p.id === editingProject.id 
-            ? { ...p, ...pendingProject, startDate: pendingProject.start_date, endDate: pendingProject.end_date }
-            : p
-        )
-      );
-      
-      addNotification({
-        title: "Projet modifié",
-        message: `Le projet "${editingProject.title}" a été modifié avec succès`,
-        type: "success"
-      });
-      
-      setEditingProject(null);
-      setPendingProject(null);
-      setShowForm(false);
+  const handleSaveEditedProject = async (projectData: any) => {
+    if (editingProject) {
+      try {
+        await updateProject(editingProject.id, {
+          title: projectData.title,
+          start_date: projectData.start_date,
+          end_date: projectData.end_date,
+          description: projectData.description || null
+        });
+
+        // Gérer les stagiaires assignés
+        if (projectData.selectedInterns) {
+          const { supabase } = await import('@/integrations/supabase/client');
+          
+          // Supprimer les anciennes assignations
+          await supabase
+            .from('project_interns')
+            .delete()
+            .eq('project_id', editingProject.id);
+
+          // Ajouter les nouvelles assignations
+          for (const intern of projectData.selectedInterns) {
+            await supabase
+              .from('project_interns')
+              .insert({
+                project_id: editingProject.id,
+                intern_id: intern.id
+              });
+          }
+        }
+
+        addNotification({
+          title: "Projet modifié",
+          message: `Le projet "${editingProject.title}" a été modifié avec succès`,
+          type: "success"
+        });
+        
+        setEditingProject(null);
+        setShowForm(false);
+
+      } catch (error) {
+        console.error('Erreur lors de la modification:', error);
+        addNotification({
+          title: "Erreur",
+          message: "Impossible de modifier le projet",
+          type: "error"
+        });
+      }
     }
   };
 
-  const handleDeleteProject = (projectId: string) => {
-    const deletedProject = savedProjects.find(p => p.id === projectId);
-    setSavedProjects(prev => prev.filter(p => p.id !== projectId));
-    
-    if (deletedProject) {
+  const handleDeleteProject = async (projectId: string) => {
+    try {
+      await deleteProject(projectId);
+      
       addNotification({
         title: "Projet supprimé",
-        message: `Le projet "${deletedProject.title}" a été supprimé`,
+        message: "Le projet a été supprimé avec succès",
         type: "warning"
+      });
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      addNotification({
+        title: "Erreur",
+        message: "Impossible de supprimer le projet",
+        type: "error"
       });
     }
   };
 
   const handleNewProject = () => {
     setEditingProject(null);
-    setPendingProject(null);
     setShowForm(true);
   };
 
@@ -127,17 +165,15 @@ export const useProjectManager = () => {
   return {
     showForm,
     setShowForm,
-    pendingProject,
     savedProjects,
     editingProject,
     projectToDelete,
     setProjectToDelete,
     searchTerm,
     filteredProjects,
-    handleProjectFormSubmit,
-    handleSaveProject,
+    loading,
+    handleProjectFormSubmit: editingProject ? handleSaveEditedProject : handleProjectFormSubmit,
     handleEditProject,
-    handleSaveEditedProject,
     handleDeleteProject,
     handleNewProject,
     handleSearch,

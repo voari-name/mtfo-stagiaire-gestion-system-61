@@ -2,32 +2,34 @@
 import React from "react";
 import { ProjectHeader } from "@/components/projects/ProjectHeader";
 import { ProjectForm } from "@/components/projects/ProjectForm";
-import { PendingProjectDisplay } from "@/components/projects/PendingProjectDisplay";
 import { SavedProjectsList } from "@/components/projects/SavedProjectsList";
 import { ProjectsEmptyState } from "@/components/projects/ProjectsEmptyState";
 import { ProjectDeletionHandler } from "@/components/projects/ProjectDeletionHandler";
+import { ProjectsLoading } from "@/components/projects/ProjectsLoading";
 import { useProjectManager } from "@/hooks/useProjectManager";
 
 export const ProjectManager = () => {
   const {
     showForm,
     setShowForm,
-    pendingProject,
     savedProjects,
     editingProject,
     projectToDelete,
     setProjectToDelete,
     searchTerm,
     filteredProjects,
+    loading,
     handleProjectFormSubmit,
-    handleSaveProject,
     handleEditProject,
-    handleSaveEditedProject,
     handleDeleteProject,
     handleNewProject,
     handleSearch,
     addNotification
   } = useProjectManager();
+
+  if (loading) {
+    return <ProjectsLoading />;
+  }
 
   return (
     <div className="space-y-6">
@@ -41,16 +43,14 @@ export const ProjectManager = () => {
         onFormClose={() => setShowForm(false)}
         onProjectCreated={handleProjectFormSubmit}
         editingProject={editingProject}
-        pendingProject={pendingProject}
+        pendingProject={editingProject ? {
+          title: editingProject.title,
+          start_date: editingProject.start_date,
+          end_date: editingProject.end_date,
+          description: editingProject.description,
+          selectedInterns: editingProject.interns || []
+        } : null}
       />
-
-      {pendingProject && !showForm && (
-        <PendingProjectDisplay
-          projectData={pendingProject}
-          onSave={editingProject ? handleSaveEditedProject : handleSaveProject}
-          isEditing={!!editingProject}
-        />
-      )}
 
       <SavedProjectsList
         projects={filteredProjects}
@@ -60,7 +60,7 @@ export const ProjectManager = () => {
         onNotify={addNotification}
       />
 
-      {savedProjects.length === 0 && !pendingProject && !showForm && (
+      {savedProjects.length === 0 && !showForm && (
         <ProjectsEmptyState />
       )}
 

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Save } from "lucide-react";
+import { Edit, Trash2 } from "lucide-react";
 import { ProjectWithDetails } from "@/hooks/useSupabaseProjects";
 import { useProjects } from "@/hooks/useProjects";
 
@@ -89,7 +89,7 @@ export const SavedProjectsList: React.FC<SavedProjectsListProps> = ({
                     className="flex items-center gap-1"
                   >
                     <Edit className="h-3 w-3" />
-                    🔄 Modifier
+                    Modifier
                   </Button>
                   <Button
                     size="sm"
@@ -98,22 +98,7 @@ export const SavedProjectsList: React.FC<SavedProjectsListProps> = ({
                     className="flex items-center gap-1"
                   >
                     <Trash2 className="h-3 w-3" />
-                    🗑️ Supprimer
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={() => {
-                      onNotify({
-                        title: "Projet enregistré",
-                        message: `Le projet "${project.title}" a été enregistré`,
-                        type: "success"
-                      });
-                    }}
-                    className="flex items-center gap-1 bg-green-600 hover:bg-green-700"
-                  >
-                    <Save className="h-3 w-3" />
-                    💾 Enregistrer
+                    Supprimer
                   </Button>
                 </div>
               </div>
