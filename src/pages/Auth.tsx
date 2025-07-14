@@ -109,7 +109,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Banner MTFoP */}
+      {/* Banner MTEFoP */}
       <div className="w-full bg-gradient-to-r from-red-600 via-white to-green-600 p-3 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -118,12 +118,12 @@ const Auth = () => {
           <div className="flex justify-center">
             <img 
               src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-              alt="MTFoP Logo" 
+              alt="MTEFoP Logo"
               className="h-16 w-auto"
             />
           </div>
           <div className="text-right">
-            <p className="text-sm font-semibold text-green-800">MTeFoP</p>
+            <p className="text-sm font-semibold text-green-800">MTEFoP</p>
           </div>
         </div>
       </div>
@@ -145,7 +145,7 @@ const Auth = () => {
             <div className="flex justify-center mb-4">
               <img 
                 src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-                alt="MTFoP Logo" 
+                alt="MTEFoP Logo" 
                 className="h-16 w-auto"
               />
             </div>

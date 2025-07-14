@@ -47,7 +47,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Banner MTFoP */}
+      {/* Banner MTEFoP */}
       <div className="w-full bg-gradient-to-r from-red-600 via-white to-green-600 p-3 shadow-lg animate-fade-in">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -56,12 +56,12 @@ const Login = () => {
           <div className="flex justify-center">
             <img 
               src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-              alt="MTFoP Logo" 
+              alt="MTEFoP Logo"
               className="h-16 w-auto animate-scale-in"
             />
           </div>
           <div className="text-right">
-            <p className="text-sm font-semibold text-green-800">MTFoP</p>
+            <p className="text-sm font-semibold text-green-800">MTEFoP</p>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@ const Login = () => {
             <div className="flex justify-center mb-4 animate-fade-in">
               <img 
                 src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-                alt="MTFoP Logo" 
+                alt="MTEFoP Logo" 
                 className="h-16 w-auto hover-scale transition-transform duration-300"
               />
             </div>

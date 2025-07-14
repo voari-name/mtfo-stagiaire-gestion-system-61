@@ -33,10 +33,10 @@ export const Sidebar = ({ sidebarOpen, setSidebarOpen, currentPage, onLogout }: 
           <div className="flex items-center space-x-2 animate-fade-in">
             <img 
               src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-              alt="MTFoP Logo" 
+              alt="MTEFoP Logo" 
               className="h-8 w-auto"
             />
-            <span className={`font-bold ${darkMode ? 'text-white' : 'text-blue-800'}`}>MTFoP</span>
+            <span className={`font-bold ${darkMode ? 'text-white' : 'text-blue-800'}`}>MTEFoP</span>
           </div>
         )}
         <Button
