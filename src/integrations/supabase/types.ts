@@ -14,7 +14,207 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assignments: {
+        Row: {
+          company: string
+          created_at: string
+          department: string
+          end_date: string
+          id: string
+          start_date: string
+          status: string
+          student: string
+          supervisor: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          department: string
+          end_date: string
+          id?: string
+          start_date: string
+          status?: string
+          student: string
+          supervisor: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          department?: string
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string
+          student?: string
+          supervisor?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      evaluations: {
+        Row: {
+          comment: string | null
+          created_at: string
+          end_date: string
+          first_name: string
+          grade: number
+          id: string
+          last_name: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          end_date: string
+          first_name: string
+          grade?: number
+          id?: string
+          last_name: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          end_date?: string
+          first_name?: string
+          grade?: number
+          id?: string
+          last_name?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interns: {
+        Row: {
+          created_at: string
+          email: string
+          end_date: string
+          first_name: string
+          gender: string | null
+          id: string
+          last_name: string
+          photo: string | null
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          end_date: string
+          first_name: string
+          gender?: string | null
+          id?: string
+          last_name: string
+          photo?: string | null
+          start_date: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          end_date?: string
+          first_name?: string
+          gender?: string | null
+          id?: string
+          last_name?: string
+          photo?: string | null
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      project_interns: {
+        Row: {
+          created_at: string
+          id: string
+          intern_id: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          intern_id: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          intern_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_interns_intern_id_fkey"
+            columns: ["intern_id"]
+            isOneToOne: false
+            referencedRelation: "interns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_interns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          start_date: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          start_date: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          start_date?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
