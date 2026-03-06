@@ -171,6 +171,15 @@ const Login = () => {
               >
                 {loading ? "Connexion..." : "Se connecter"}
               </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleCreateAccountAndLogin}
+                disabled={loading}
+              >
+                Créer un compte et se connecter
+              </Button>
               <Button 
                 type="button" 
                 variant="link" 
