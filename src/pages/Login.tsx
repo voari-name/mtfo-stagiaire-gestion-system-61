@@ -40,9 +40,53 @@ const Login = () => {
     setLoading(false);
   };
 
+  const handleCreateAccountAndLogin = async () => {
+    if (!email || !password) {
+      toast({
+        title: "Champs requis",
+        description: "Entrez d'abord votre email et mot de passe",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    const { error: signUpError } = await signUp(email, password);
+
+    if (signUpError && signUpError.message !== "User already registered") {
+      toast({
+        title: "Erreur d'inscription",
+        description: signUpError.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    const { error: signInError } = await signIn(email, password);
+
+    if (signInError) {
+      toast({
+        title: "Erreur de connexion",
+        description: signInError.message === "Invalid login credentials"
+          ? "Email ou mot de passe incorrect"
+          : signInError.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Compte prêt",
+        description: "Inscription et connexion réussies",
+      });
+      navigate("/profile");
+    }
+
+    setLoading(false);
+  };
+
   const handleForgotPassword = () => {
     // Rediriger vers la page Auth avec l'onglet reset activé
-    navigate("/auth");
+    navigate("/auth?tab=reset");
   };
 
   return (
