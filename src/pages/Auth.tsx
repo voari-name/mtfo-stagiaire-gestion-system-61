@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Eye, EyeOff } from "lucide-react";
+
+const ALLOWED_EMAIL = "olivierrahajaniaina9@gmail.com";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -16,12 +19,13 @@ const Auth = () => {
   const [resetEmail, setResetEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { signIn, signUp, resetPassword } = useAuth();
 
-  // Vérifier si on arrive depuis la page de connexion pour ouvrir l'onglet reset
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('tab') === 'reset') {
@@ -29,10 +33,23 @@ const Auth = () => {
     }
   }, [location]);
 
+  const checkAllowedEmail = (emailToCheck: string) => {
+    if (emailToCheck.toLowerCase().trim() !== ALLOWED_EMAIL) {
+      toast({
+        title: "Accès refusé",
+        description: "Cet email n'est pas autorisé à accéder à cette plateforme",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkAllowedEmail(email)) return;
+
     setLoading(true);
-    
     const { error } = await signIn(email, password);
     
     if (error) {
@@ -55,6 +72,8 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkAllowedEmail(email)) return;
+
     if (password !== confirmPassword) {
       toast({
         title: "Erreur",
@@ -78,7 +97,7 @@ const Auth = () => {
     } else {
       toast({
         title: "Inscription réussie",
-        description: "Vérifiez votre email pour confirmer votre compte",
+        description: "Votre compte a été créé avec succès",
       });
       setActiveTab("login");
     }
@@ -87,8 +106,9 @@ const Auth = () => {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkAllowedEmail(resetEmail)) return;
+
     setLoading(true);
-    
     const { error } = await resetPassword(resetEmail);
     
     if (error) {
@@ -107,20 +127,38 @@ const Auth = () => {
     setLoading(false);
   };
 
+  const PasswordInput = ({ id, value, onChange, placeholder, show, onToggle }: {
+    id: string; value: string; onChange: (v: string) => void; placeholder: string; show: boolean; onToggle: () => void;
+  }) => (
+    <div className="relative">
+      <Input
+        id={id}
+        type={show ? "text" : "password"}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required
+        className="pr-10"
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
-      {/* Banner MTEFoP */}
       <div className="w-full bg-gradient-to-r from-red-600 via-white to-green-600 p-3 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <p className="text-sm text-gold font-semibold">REPOBLIKAN'I MADAGASIKARA</p>
           </div>
           <div className="flex justify-center">
-            <img 
-              src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-              alt="MTEFoP Logo"
-              className="h-16 w-auto"
-            />
+            <img src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" alt="MTEFoP Logo" className="h-16 w-auto" />
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-green-800">MTEFoP</p>
@@ -130,11 +168,7 @@ const Auth = () => {
 
       <div className="flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
         <div className="absolute top-20 left-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate("/")}
-            className="flex items-center gap-2"
-          >
+          <Button variant="ghost" onClick={() => navigate("/")} className="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
             Retour à l'accueil
           </Button>
@@ -143,11 +177,7 @@ const Auth = () => {
         <Card className="w-full max-w-md mx-4 shadow-2xl border-t-4 border-t-blue-800">
           <CardHeader className="space-y-1 flex items-center flex-col">
             <div className="flex justify-center mb-4">
-              <img 
-                src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" 
-                alt="MTEFoP Logo" 
-                className="h-16 w-auto"
-              />
+              <img src="/lovable-uploads/bbbcd3ef-0021-42ca-8d32-8796bd1cf670.png" alt="MTEFoP Logo" className="h-16 w-auto" />
             </div>
             <CardTitle className="text-2xl font-bold text-center">Authentification</CardTitle>
             <CardDescription className="text-center">
@@ -167,37 +197,18 @@ const Auth = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Entrez votre email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <Input id="email" type="email" placeholder="Entrez votre email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Mot de passe</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="Entrez votre mot de passe"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                    <PasswordInput id="password" value={password} onChange={setPassword} placeholder="Entrez votre mot de passe" show={showPassword} onToggle={() => setShowPassword(!showPassword)} />
                   </div>
                 </CardContent>
                 <CardFooter className="flex flex-col space-y-2">
                   <Button type="submit" className="w-full bg-blue-800 hover:bg-blue-900" disabled={loading}>
                     {loading ? "Connexion..." : "Se connecter"}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="link" 
-                    onClick={() => setActiveTab("reset")}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
+                  <Button type="button" variant="link" onClick={() => setActiveTab("reset")} className="text-blue-600 hover:text-blue-800">
                     Mot de passe oublié?
                   </Button>
                 </CardFooter>
@@ -209,36 +220,15 @@ const Auth = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="Entrez votre email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <Input id="signup-email" type="email" placeholder="Entrez votre email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Mot de passe</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="Entrez votre mot de passe"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
+                    <PasswordInput id="signup-password" value={password} onChange={setPassword} placeholder="Entrez votre mot de passe" show={showPassword} onToggle={() => setShowPassword(!showPassword)} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-                    <Input
-                      id="confirm-password"
-                      type="password"
-                      placeholder="Confirmez votre mot de passe"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
+                    <PasswordInput id="confirm-password" value={confirmPassword} onChange={setConfirmPassword} placeholder="Confirmez votre mot de passe" show={showConfirmPassword} onToggle={() => setShowConfirmPassword(!showConfirmPassword)} />
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -254,14 +244,7 @@ const Auth = () => {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="reset-email">Email</Label>
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="Entrez votre email"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      required
-                    />
+                    <Input id="reset-email" type="email" placeholder="Entrez votre email" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required />
                   </div>
                   <p className="text-sm text-gray-600">
                     Entrez votre adresse email pour recevoir un lien de réinitialisation de mot de passe.
@@ -271,12 +254,7 @@ const Auth = () => {
                   <Button type="submit" className="w-full bg-orange-600 hover:bg-orange-700" disabled={loading}>
                     {loading ? "Envoi..." : "Envoyer le lien"}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="link" 
-                    onClick={() => setActiveTab("login")}
-                    className="text-gray-600 hover:text-gray-800"
-                  >
+                  <Button type="button" variant="link" onClick={() => setActiveTab("login")} className="text-gray-600 hover:text-gray-800">
                     Retour à la connexion
                   </Button>
                 </CardFooter>
