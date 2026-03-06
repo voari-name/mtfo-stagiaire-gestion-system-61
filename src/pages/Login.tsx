@@ -7,19 +7,36 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { Eye, EyeOff } from "lucide-react";
+
+const ALLOWED_EMAIL = "olivierrahajaniaina9@gmail.com";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { signIn, signUp } = useAuth();
 
+  const checkAllowedEmail = () => {
+    if (email.toLowerCase().trim() !== ALLOWED_EMAIL) {
+      toast({
+        title: "Accès refusé",
+        description: "Cet email n'est pas autorisé à accéder à cette plateforme",
+        variant: "destructive",
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!checkAllowedEmail()) return;
+
     setLoading(true);
-    
     const { error } = await signIn(email, password);
     
     if (error) {
@@ -49,6 +66,8 @@ const Login = () => {
       });
       return;
     }
+
+    if (!checkAllowedEmail()) return;
 
     setLoading(true);
     const { error: signUpError } = await signUp(email, password);
@@ -85,7 +104,6 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    // Rediriger vers la page Auth avec l'onglet reset activé
     navigate("/auth?tab=reset");
   };
 
@@ -152,15 +170,24 @@ const Login = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password" className="dark:text-white">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Entrez votre mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="transition-all duration-300 focus:scale-105 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Entrez votre mot de passe"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pr-10 transition-all duration-300 focus:scale-105 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-4 animate-fade-in" style={{animationDelay: '0.6s'}}>
