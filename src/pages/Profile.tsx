@@ -1,14 +1,33 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MainLayout from "@/components/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import ProfilePhotoUpload from "@/components/profile/ProfilePhotoUpload";
 import PersonalInfoForm from "@/components/profile/PersonalInfoForm";
 
 const Profile = () => {
   const { translations } = useSettings();
-  const [profilePhoto, setProfilePhoto] = useState("/lovable-uploads/d23d8c4c-1324-4c58-9904-d37fd7d53be4.png");
+  const { user } = useAuth();
+  const [profilePhoto, setProfilePhoto] = useState("/lovable-uploads/profile-photo-olivier.jpg");
+
+  useEffect(() => {
+    const loadProfilePhoto = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('photo_url')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data?.photo_url) {
+        setProfilePhoto(data.photo_url);
+      }
+    };
+    loadProfilePhoto();
+  }, [user]);
 
   return (
     <MainLayout title={translations["Mon profil"]} currentPage="profile" username="RAHAJANIAINA Olivier">
