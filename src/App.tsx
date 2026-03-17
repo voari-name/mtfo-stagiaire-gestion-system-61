@@ -1,9 +1,10 @@
 import { Toaster } from "@/components/ui/toaster";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Profile from "./pages/Profile";
 import Internships from "./pages/Internships";
 import Evaluations from "./pages/Evaluations";
@@ -25,51 +26,76 @@ function App() {
       <AuthProvider>
         <SettingsProvider>
           <Router>
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                <Route path="/internships" element={
-                  <ProtectedRoute>
-                    <Internships />
-                  </ProtectedRoute>
-                } />
-                <Route path="/projects" element={
-                  <ProtectedRoute>
-                    <Projects />
-                  </ProtectedRoute>
-                } />
-                <Route path="/evaluations" element={
-                  <ProtectedRoute>
-                    <Evaluations />
-                  </ProtectedRoute>
-                } />
-                <Route path="/assignments" element={
-                  <ProtectedRoute>
-                    <Assignments />
-                  </ProtectedRoute>
-                } />
-                <Route path="/statistics" element={
-                  <ProtectedRoute>
-                    <Statistics />
-                  </ProtectedRoute>
-                } />
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                } />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/internships"
+                  element={
+                    <ProtectedRoute>
+                      <Internships />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <ProtectedRoute>
+                      <Projects />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/evaluations"
+                  element={
+                    <ProtectedRoute>
+                      <Evaluations />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/assignments"
+                  element={
+                    <ProtectedRoute>
+                      <Assignments />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/statistics"
+                  element={
+                    <ProtectedRoute>
+                      <Statistics />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/settings"
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <Toaster />
