@@ -45,16 +45,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     }
   }, [initialData]);
 
-  // Auto-submit when all required fields are filled and at least one intern is selected
-  useEffect(() => {
-    if (formData.title && formData.start_date && formData.end_date && selectedInterns.length > 0) {
-      const projectData = {
-        ...formData,
-        selectedInterns
-      };
-      onProjectCreated(projectData);
-    }
-  }, [formData.title, formData.start_date, formData.end_date, selectedInterns, onProjectCreated]);
+  // Removed auto-submit to prevent duplicate project creation
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
