@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,10 +30,10 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     end_date: ""
   });
   const [selectedInterns, setSelectedInterns] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { interns } = useSupabaseInterns();
 
-  // Mettre à jour le formulaire avec les données initiales
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -45,10 +45,10 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     }
   }, [initialData]);
 
-  // Removed auto-submit to prevent duplicate project creation
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (isSubmitting) return;
     
     if (!formData.title || !formData.start_date || !formData.end_date) {
       toast({
@@ -59,6 +59,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const projectData = {
         ...formData,
@@ -67,9 +69,13 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
 
       await onProjectCreated(projectData);
       
+      // Reset form
+      setFormData({ title: "", start_date: "", end_date: "" });
+      setSelectedInterns([]);
+      
       toast({
         title: editingProject ? "Projet modifié" : "Projet créé",
-        description: editingProject ? "Le projet a été modifié avec succès" : "Le projet est prêt à être enregistré"
+        description: editingProject ? "Le projet a été modifié avec succès" : "Le projet a été créé avec succès"
       });
 
     } catch (error) {
@@ -79,6 +85,8 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         description: "Impossible de créer le projet.",
         variant: "destructive"
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -94,11 +102,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
   };
 
   const handleCancel = () => {
-    setFormData({
-      title: "",
-      start_date: "",
-      end_date: ""
-    });
+    setFormData({ title: "", start_date: "", end_date: "" });
     setSelectedInterns([]);
     onOpenChange(false);
   };
@@ -111,7 +115,7 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
     <form onSubmit={handleSubmit}>
       <div className="grid gap-6 py-4">
         <div className="space-y-2">
-          <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+          <Label htmlFor="title" className="text-sm font-medium">
             Titre *
           </Label>
           <Input
@@ -119,14 +123,13 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             placeholder="Titre du projet"
-            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             required
           />
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="start_date" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="start_date" className="text-sm font-medium">
               Date début *
             </Label>
             <Input
@@ -134,12 +137,11 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
               type="date"
               value={formData.start_date}
               onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="end_date" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="end_date" className="text-sm font-medium">
               Date fin *
             </Label>
             <Input
@@ -147,19 +149,18 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
               type="date"
               value={formData.end_date}
               onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-              className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
               required
             />
           </div>
         </div>
         
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-gray-700">
+          <Label className="text-sm font-medium">
             Stagiaires
           </Label>
           {availableInterns.length > 0 && (
             <Select onValueChange={handleAddIntern}>
-              <SelectTrigger className="border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+              <SelectTrigger>
                 <SelectValue placeholder="Ajouter un stagiaire" />
               </SelectTrigger>
               <SelectContent>
@@ -194,14 +195,19 @@ const CreateProjectDialog: React.FC<CreateProjectDialogProps> = ({
         </div>
       </div>
       <div className="pt-4 border-t flex gap-3">
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 px-6">
-          {editingProject ? "Modifier le projet" : "Créer le projet"}
+        <Button 
+          type="submit" 
+          className="bg-primary hover:bg-primary/90 px-6"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "En cours..." : (editingProject ? "Modifier le projet" : "Créer le projet")}
         </Button>
         <Button 
           type="button" 
           variant="outline" 
           onClick={handleCancel}
           className="px-6"
+          disabled={isSubmitting}
         >
           Annuler
         </Button>
