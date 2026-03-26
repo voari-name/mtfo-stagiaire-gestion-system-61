@@ -1,6 +1,7 @@
 
 export interface EvaluationType {
-  id: number;
+  id: number | string;
+  dbId?: string;
   firstName: string;
   lastName: string;
   startDate: string;
