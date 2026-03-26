@@ -8,8 +8,8 @@ import { EvaluationType } from "@/types/evaluations";
 interface EvaluationCardProps {
   evaluation: EvaluationType;
   onEdit: (evaluation: EvaluationType) => void;
-  onDelete: (id: number) => void;
-  onGeneratePdf: (id: number) => void;
+  onDelete: (id: number | string) => void;
+  onGeneratePdf: (id: number | string) => void;
 }
 
 const EvaluationCard = ({ evaluation, onEdit, onDelete, onGeneratePdf }: EvaluationCardProps) => {
