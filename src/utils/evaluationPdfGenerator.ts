@@ -2,7 +2,7 @@
 import jsPDF from 'jspdf';
 
 export interface EvaluationData {
-  id: number;
+  id: number | string;
   firstName: string;
   lastName: string;
   startDate: string;
