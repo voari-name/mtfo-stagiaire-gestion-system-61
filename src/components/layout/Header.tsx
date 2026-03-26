@@ -1,7 +1,10 @@
 
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { NotificationBar } from "@/components/layout/NotificationBar";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HeaderProps {
   title: string;
@@ -10,6 +13,23 @@ interface HeaderProps {
 
 export const Header = ({ title, username = "RAHAJANIAINA Olivier" }: HeaderProps) => {
   const { darkMode, translations } = useSettings();
+  const { user } = useAuth();
+  const [photoUrl, setPhotoUrl] = useState("/lovable-uploads/profile-photo-olivier.jpg");
+
+  useEffect(() => {
+    const loadPhoto = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('photo_url')
+        .eq('user_id', user.id)
+        .single();
+      if (data?.photo_url) {
+        setPhotoUrl(data.photo_url);
+      }
+    };
+    loadPhoto();
+  }, [user]);
 
   return (
     <header className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-white'} border-b px-6 py-4 flex justify-between items-center shadow-sm`}>
@@ -18,12 +38,11 @@ export const Header = ({ title, username = "RAHAJANIAINA Olivier" }: HeaderProps
       </div>
       
       <div className="flex items-center space-x-4">
-        {/* Barre de notification */}
         <NotificationBar />
         
         <div className="flex items-center space-x-3">
           <img
-            src="/lovable-uploads/d23d8c4c-1324-4c58-9904-d37fd7d53be4.png"
+            src={photoUrl}
             alt="Photo de profil"
             className="h-10 w-10 rounded-full object-cover border-2 border-blue-600"
           />
